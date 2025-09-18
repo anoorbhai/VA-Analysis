@@ -1,0 +1,70 @@
+{
+  "meta": {
+    "for": "Niche Difficult Medical Knowledge Probe",
+    "version": "1.0",
+    "total": 15,
+    "key_format": "id -> correct option letter (A-D) OR reasoning text"
+  },
+  "answers": [
+    {
+      "id": "Q1",
+      "correct": "B"
+    },
+    {
+      "id": "Q2",
+      "correct": "B"
+    },
+    {
+      "id": "Q3",
+      "correct": "A"
+    },
+    {
+      "id": "Q4",
+      "correct": "C"
+    },
+    {
+      "id": "Q5",
+      "correct": "D"
+    },
+    {
+      "id": "Q6",
+      "correct": "B"
+    },
+    {
+      "id": "Q7",
+      "correct": "C"
+    },
+    {
+      "id": "Q8",
+      "correct": "A"
+    },
+    {
+      "id": "Q9",
+      "correct": "B"
+    },
+    {
+      "id": "Q10",
+      "correct": "C"
+    },
+    {
+      "id": "Q11",
+      "correct": "B"
+    },
+    {
+      "id": "Q12",
+      "correct": "B"
+    },
+    {
+      "id": "Q13",
+      "correct": "B"
+    },
+    {
+      "id": "Q14",
+      "expected": "Patent ductus arteriosus (PDA) — continuous machinery murmur, can cause heart failure in infants."
+    },
+    {
+      "id": "Q15",
+      "expected": "Plasmodium vivax — tertian (48h) fever periodicity and strong link with splenomegaly."
+    }
+  ]
+}
