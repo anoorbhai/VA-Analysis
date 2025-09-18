@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "for": "Medical Knowledge Probe (Verbal Autopsy Context)",
+    "version": "1.0",
+    "total": 30,
+    "key_format": "id -> correct option letter (A-D)"
+  },
+  "answers": [
+    {
+      "id": "E1",
+      "correct": "B"
+    },
+    {
+      "id": "E2",
+      "correct": "C"
+    },
+    {
+      "id": "E3",
+      "correct": "B"
+    },
+    {
+      "id": "E4",
+      "correct": "B"
+    },
+    {
+      "id": "E5",
+      "correct": "B"
+    },
+    {
+      "id": "E6",
+      "correct": "C"
+    },
+    {
+      "id": "E7",
+      "correct": "B"
+    },
+    {
+      "id": "E8",
+      "correct": "C"
+    },
+    {
+      "id": "E9",
+      "correct": "B"
+    },
+    {
+      "id": "E10",
+      "correct": "D"
+    },
+    {
+      "id": "M1",
+      "correct": "C"
+    },
+    {
+      "id": "M2",
+      "correct": "B"
+    },
+    {
+      "id": "M3",
+      "correct": "B"
+    },
+    {
+      "id": "M4",
+      "correct": "C"
+    },
+    {
+      "id": "M5",
+      "correct": "D"
+    },
+    {
+      "id": "M6",
+      "correct": "B"
+    },
+    {
+      "id": "M7",
+      "correct": "C"
+    },
+    {
+      "id": "M8",
+      "correct": "B"
+    },
+    {
+      "id": "M9",
+      "correct": "B"
+    },
+    {
+      "id": "M10",
+      "correct": "C"
+    },
+    {
+      "id": "D1",
+      "correct": "C"
+    },
+    {
+      "id": "D2",
+      "correct": "B"
+    },
+    {
+      "id": "D3",
+      "correct": "C"
+    },
+    {
+      "id": "D4",
+      "correct": "B"
+    },
+    {
+      "id": "D5",
+      "correct": "B"
+    },
+    {
+      "id": "D6",
+      "correct": "C"
+    },
+    {
+      "id": "D7",
+      "correct": "C"
+    },
+    {
+      "id": "D8",
+      "correct": "B"
+    },
+    {
+      "id": "D9",
+      "correct": "A"
+    },
+    {
+      "id": "D10",
+      "correct": "C"
+    }
+  ]
+}

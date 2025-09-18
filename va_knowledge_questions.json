@@ -1,0 +1,346 @@
+{
+  "meta": {
+    "title": "Medical Knowledge Probe (Verbal Autopsy Context)",
+    "version": "1.0",
+    "total": 30,
+    "created": "2025-09-16T08:16:24.886630Z",
+    "option_labels": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "questions": [
+    {
+      "id": "E1",
+      "difficulty": "easy",
+      "stem": "A 35-year-old’s normal resting respiratory rate is typically:",
+      "options": [
+        "4–8/min",
+        "12–20/min",
+        "22–30/min",
+        ">30/min"
+      ]
+    },
+    {
+      "id": "E2",
+      "difficulty": "easy",
+      "stem": "Primary mode of transmission for pulmonary tuberculosis is:",
+      "options": [
+        "Fecal–oral",
+        "Sexual contact",
+        "Airborne droplet nuclei",
+        "Vector-borne"
+      ]
+    },
+    {
+      "id": "E3",
+      "difficulty": "easy",
+      "stem": "A sign most suggestive of moderate–severe dehydration in a child is:",
+      "options": [
+        "Mild thirst only",
+        "Sunken eyes and lethargy",
+        "Runny nose",
+        "Itchy skin"
+      ]
+    },
+    {
+      "id": "E4",
+      "difficulty": "easy",
+      "stem": "The vaccine that prevents measles is:",
+      "options": [
+        "BCG",
+        "MMR",
+        "Oral polio",
+        "Tetanus toxoid"
+      ]
+    },
+    {
+      "id": "E5",
+      "difficulty": "easy",
+      "stem": "A classic feature of pertussis (whooping cough) is:",
+      "options": [
+        "Productive cough",
+        "Inspiratory “whoop” after coughing fits",
+        "Barking cough only at night",
+        "Cough improves with exercise"
+      ]
+    },
+    {
+      "id": "E6",
+      "difficulty": "easy",
+      "stem": "The vector for malaria is:",
+      "options": [
+        "Ticks",
+        "Sandflies",
+        "Anopheles mosquitoes",
+        "Fleas"
+      ]
+    },
+    {
+      "id": "E7",
+      "difficulty": "easy",
+      "stem": "When hands are visibly soiled, the preferred hand hygiene is:",
+      "options": [
+        "Alcohol rub only",
+        "Soap and water",
+        "Antiseptic wipes",
+        "UV light"
+      ]
+    },
+    {
+      "id": "E8",
+      "difficulty": "easy",
+      "stem": "Vitamin A deficiency most commonly causes:",
+      "options": [
+        "Scurvy",
+        "Rickets",
+        "Night blindness",
+        "Pellagra"
+      ]
+    },
+    {
+      "id": "E9",
+      "difficulty": "easy",
+      "stem": "A common symptom of anemia is:",
+      "options": [
+        "Hives",
+        "Fatigue and weakness",
+        "Jaundice only",
+        "Ear pain"
+      ]
+    },
+    {
+      "id": "E10",
+      "difficulty": "easy",
+      "stem": "A symptom that should prompt urgent obstetric care is:",
+      "options": [
+        "Morning nausea",
+        "Mild ankle swelling",
+        "Food aversions",
+        "Heavy vaginal bleeding"
+      ]
+    },
+    {
+      "id": "M1",
+      "difficulty": "medium",
+      "stem": "Adult with 3-week cough, weight loss, night sweats: the best initial diagnostic test is:",
+      "options": [
+        "Mantoux (tuberculin) skin test",
+        "Chest X-ray only",
+        "Sputum nucleic acid test (NAAT) for TB",
+        "Throat swab culture"
+      ]
+    },
+    {
+      "id": "M2",
+      "difficulty": "medium",
+      "stem": "Child with fever, neck stiffness, photophobia most likely has:",
+      "options": [
+        "Otitis media",
+        "Acute bacterial meningitis",
+        "Viral bronchiolitis",
+        "Migraine"
+      ]
+    },
+    {
+      "id": "M3",
+      "difficulty": "medium",
+      "stem": "5-day-old neonate with fever, poor feeding, lethargy—most likely:",
+      "options": [
+        "Physiologic jaundice",
+        "Neonatal sepsis",
+        "Colic",
+        "Teething"
+      ]
+    },
+    {
+      "id": "M4",
+      "difficulty": "medium",
+      "stem": "Missed period, lower abdominal pain, shoulder-tip pain, positive pregnancy test—most likely:",
+      "options": [
+        "Appendicitis",
+        "Ovarian torsion",
+        "Ectopic pregnancy",
+        "Cystitis"
+      ]
+    },
+    {
+      "id": "M5",
+      "difficulty": "medium",
+      "stem": "Sudden crushing chest pain radiating to the left arm with sweating—most likely:",
+      "options": [
+        "GERD",
+        "Costochondritis",
+        "Panic attack",
+        "Acute myocardial infarction"
+      ]
+    },
+    {
+      "id": "M6",
+      "difficulty": "medium",
+      "stem": "High fever, severe muscle/joint pain, retro-orbital pain after mosquito exposure—most likely:",
+      "options": [
+        "Malaria",
+        "Dengue fever",
+        "Chikungunya",
+        "Zika"
+      ]
+    },
+    {
+      "id": "M7",
+      "difficulty": "medium",
+      "stem": "Right-upper-quadrant pain after fatty meals, fever, positive Murphy’s sign—most likely:",
+      "options": [
+        "Hepatitis A",
+        "Peptic ulcer disease",
+        "Acute cholecystitis",
+        "Pancreatitis"
+      ]
+    },
+    {
+      "id": "M8",
+      "difficulty": "medium",
+      "stem": "Chronic cough and wheeze with reversible airflow limitation after bronchodilator points to:",
+      "options": [
+        "COPD",
+        "Asthma",
+        "Pulmonary fibrosis",
+        "Heart failure"
+      ]
+    },
+    {
+      "id": "M9",
+      "difficulty": "medium",
+      "stem": "Facial droop, arm weakness, slurred speech starting 1 hour ago. The priority is:",
+      "options": [
+        "Give sedatives",
+        "Urgent stroke activation for time-critical therapy",
+        "Start antibiotics",
+        "Observe 24 hours"
+      ]
+    },
+    {
+      "id": "M10",
+      "difficulty": "medium",
+      "stem": "Child <5 years with cough, chest indrawing and fast breathing per WHO signs—classify as:",
+      "options": [
+        "Mild cold",
+        "Asthma",
+        "Severe pneumonia",
+        "Bronchitis"
+      ]
+    },
+    {
+      "id": "D1",
+      "difficulty": "difficult",
+      "stem": "Death certificate chain reads: Immediate: Acute respiratory failure (12 h) → Antecedent: Severe pneumonia (5 d) → Underlying: Measles infection (10 d). Contributing: Moderate malnutrition. Per standard rules, the underlying cause of death is:",
+      "options": [
+        "Acute respiratory failure",
+        "Severe pneumonia",
+        "Measles infection",
+        "Malnutrition"
+      ]
+    },
+    {
+      "id": "D2",
+      "difficulty": "difficult",
+      "stem": "Adult with 2-month cough, weight loss, hemoptysis, night sweats, TB contact. Most likely diagnosis:",
+      "options": [
+        "Lung cancer",
+        "Pulmonary tuberculosis",
+        "Chronic bronchitis",
+        "Heart failure"
+      ]
+    },
+    {
+      "id": "D3",
+      "difficulty": "difficult",
+      "stem": "Post-partum day 0, profuse vaginal bleeding, soft “boggy” uterus, tachycardia—most likely cause:",
+      "options": [
+        "Retained placenta only",
+        "Uterine rupture",
+        "Uterine atony → postpartum hemorrhage",
+        "Endometritis"
+      ]
+    },
+    {
+      "id": "D4",
+      "difficulty": "difficult",
+      "stem": "Post-partum day 7 fever, lower abdominal pain, foul-smelling lochia—most likely:",
+      "options": [
+        "Mastitis",
+        "Post-partum endometritis",
+        "UTI",
+        "Wound hematoma"
+      ]
+    },
+    {
+      "id": "D5",
+      "difficulty": "difficult",
+      "stem": "HIV-positive adult with subacute headache, fever, blurred vision; exam suggests raised ICP—most likely:",
+      "options": [
+        "Tension headache",
+        "Cryptococcal meningitis",
+        "Sinusitis",
+        "Migraine"
+      ]
+    },
+    {
+      "id": "D6",
+      "difficulty": "difficult",
+      "stem": "Adult from malaria-endemic area with fever, confusion, seizures, severe anemia—most likely:",
+      "options": [
+        "Typhoid fever",
+        "Viral encephalitis",
+        "Severe falciparum malaria (cerebral malaria)",
+        "Bacterial sinusitis"
+      ]
+    },
+    {
+      "id": "D7",
+      "difficulty": "difficult",
+      "stem": "Sudden pleuritic chest pain, shortness of breath, tachycardia 1 week after delivery—most likely:",
+      "options": [
+        "Pneumothorax",
+        "Asthma attack",
+        "Pulmonary embolism",
+        "Pneumonia"
+      ]
+    },
+    {
+      "id": "D8",
+      "difficulty": "difficult",
+      "stem": "DKA vs HHS: Adult with diabetes, abdominal pain, vomiting, deep (Kussmaul) breathing, fruity breath—most likely:",
+      "options": [
+        "Hyperosmolar hyperglycemic state",
+        "Diabetic ketoacidosis",
+        "Hypoglycemia",
+        "Acute cholecystitis"
+      ]
+    },
+    {
+      "id": "D9",
+      "difficulty": "difficult",
+      "stem": "Child (2 years) with high fever, drooling, tripod posture, muffled voice, stridor—most likely:",
+      "options": [
+        "Epiglottitis",
+        "Croup",
+        "Asthma",
+        "Foreign body aspiration"
+      ]
+    },
+    {
+      "id": "D10",
+      "difficulty": "difficult",
+      "stem": "Food-borne outbreak: 4 hours after a picnic, several people develop profuse vomiting with minimal fever after eating cream-filled pastries. Most likely agent/mechanism:",
+      "options": [
+        "Salmonella enterica (invasive)",
+        "Norovirus (person-to-person)",
+        "Staphylococcus aureus preformed toxin",
+        "Campylobacter (undercooked poultry)"
+      ]
+    }
+  ]
+}

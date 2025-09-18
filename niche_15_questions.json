@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "title": "Niche Difficult Medical Knowledge Probe",
+    "version": "1.0",
+    "total": 15,
+    "created": "2025-09-17T13:36:50.609463Z",
+    "option_labels": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "difficulty": "difficult",
+      "stem": "Which congenital heart defect is classically associated with 'egg on a string' appearance on chest X-ray?",
+      "options": [
+        "Tetralogy of Fallot",
+        "Transposition of the great arteries",
+        "Truncus arteriosus",
+        "Total anomalous pulmonary venous return"
+      ]
+    },
+    {
+      "id": "Q2",
+      "difficulty": "difficult",
+      "stem": "In rabies infection, which histological finding in hippocampal neurons is pathognomonic?",
+      "options": [
+        "Councilman bodies",
+        "Negri bodies",
+        "Guarnieri bodies",
+        "Lewy bodies"
+      ]
+    },
+    {
+      "id": "Q3",
+      "difficulty": "difficult",
+      "stem": "Which malaria species is most associated with splenic rupture?",
+      "options": [
+        "Plasmodium vivax",
+        "Plasmodium falciparum",
+        "Plasmodium malariae",
+        "Plasmodium ovale"
+      ]
+    },
+    {
+      "id": "Q4",
+      "difficulty": "difficult",
+      "stem": "In neonatal sepsis, which organism is most commonly implicated within the first 72 hours of life?",
+      "options": [
+        "Listeria monocytogenes",
+        "Escherichia coli",
+        "Streptococcus agalactiae (Group B Strep)",
+        "Klebsiella pneumoniae"
+      ]
+    },
+    {
+      "id": "Q5",
+      "difficulty": "difficult",
+      "stem": "What is the most specific ECG finding in hyperkalemia?",
+      "options": [
+        "Prolonged QT interval",
+        "U waves",
+        "Peaked T waves",
+        "Sine wave pattern"
+      ]
+    },
+    {
+      "id": "Q6",
+      "difficulty": "difficult",
+      "stem": "Which type of intracranial hemorrhage is classically described as 'crescent-shaped' on CT?",
+      "options": [
+        "Epidural hematoma",
+        "Subdural hematoma",
+        "Subarachnoid hemorrhage",
+        "Intraparenchymal hemorrhage"
+      ]
+    },
+    {
+      "id": "Q7",
+      "difficulty": "difficult",
+      "stem": "The presence of Howell–Jolly bodies on peripheral smear indicates dysfunction of which organ?",
+      "options": [
+        "Liver",
+        "Bone marrow",
+        "Spleen",
+        "Kidney"
+      ]
+    },
+    {
+      "id": "Q8",
+      "difficulty": "difficult",
+      "stem": "Which vitamin deficiency predisposes to Wernicke encephalopathy?",
+      "options": [
+        "Vitamin B1 (thiamine)",
+        "Vitamin B6 (pyridoxine)",
+        "Vitamin B12 (cobalamin)",
+        "Niacin (B3)"
+      ]
+    },
+    {
+      "id": "Q9",
+      "difficulty": "difficult",
+      "stem": "A patient with chronic liver disease presents with gynecomastia and spider angiomas. Which hormone is most likely elevated?",
+      "options": [
+        "Progesterone",
+        "Estrogen",
+        "Testosterone",
+        "Cortisol"
+      ]
+    },
+    {
+      "id": "Q10",
+      "difficulty": "difficult",
+      "stem": "Infective endocarditis due to IV drug use most commonly involves which valve?",
+      "options": [
+        "Mitral valve",
+        "Aortic valve",
+        "Tricuspid valve",
+        "Pulmonic valve"
+      ]
+    },
+    {
+      "id": "Q11",
+      "difficulty": "difficult",
+      "stem": "Which zoonotic infection is strongly linked to unpasteurized goat cheese consumption in endemic regions?",
+      "options": [
+        "Leptospirosis",
+        "Brucellosis",
+        "Anthrax",
+        "Q fever"
+      ]
+    },
+    {
+      "id": "Q12",
+      "difficulty": "difficult",
+      "stem": "What is the primary histological lesion in Rheumatic heart disease?",
+      "options": [
+        "Negri bodies",
+        "Aschoff bodies",
+        "Reed–Sternberg cells",
+        "Mallory bodies"
+      ]
+    },
+    {
+      "id": "Q13",
+      "difficulty": "difficult",
+      "stem": "Which electrolyte abnormality is most associated with Torsades de Pointes?",
+      "options": [
+        "Hyperkalemia",
+        "Hypomagnesemia",
+        "Hypernatremia",
+        "Hypocalcemia"
+      ]
+    },
+    {
+      "id": "Q14",
+      "difficulty": "reasoning",
+      "stem": "A 2-month-old infant with severe respiratory distress and continuous 'machinery' murmur is suspected to have a congenital heart defect. Which condition is most likely, and why?",
+      "options": []
+    },
+    {
+      "id": "Q15",
+      "difficulty": "reasoning",
+      "stem": "A patient from a malaria-endemic region presents with cyclical fevers every 48 hours and splenomegaly. Provide the most likely parasite and explain your reasoning briefly.",
+      "options": []
+    }
+  ]
+}
