@@ -4,13 +4,8 @@ import subprocess
 from typing import Dict, List
 
 def call_llm(model: str, prompt: str) -> str:
-    """Call the LLM using the ollama CLI and return the full response."""
-    result = subprocess.run(
-        ["ollama", "run", model],
-        input=prompt.encode("utf-8"),
-        capture_output=True
-    )
-    return result.stdout.decode("utf-8").strip()
+    response = ollama.chat(model=model, messages=[{"role": "user", "content": prompt}])
+    return response["message"]["content"]
 
 def load_questions(path: str) -> List[Dict]:
     with open(path, 'r') as f:
@@ -39,8 +34,9 @@ def ask_questions_and_save(model: str, questions: List[Dict], output_file: str):
 def main():
     questions = load_questions('niche_15_questions.json')
     models = [
-        ('llama3:latest', 'llama3_latest_output.txt'),
-        ('llama4:latest', 'llama4_latest_output.txt'),
+        ('llama3:70b', 'llama3_70b_output.txt'),
+        ('llama4:scout', 'llama4_scout_output.txt'),
+        ('llama4:maverick', 'llama4_maverick_output.txt'),
     ]
     for model, outfile in models:
         print(f"\nPrompting {model}...")
