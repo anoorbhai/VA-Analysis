@@ -1,0 +1,204 @@
+Q1 | difficult
+Prompt: Q: Which congenital heart defect is classically associated with 'egg on a string' appearance on chest X-ray?
+Options:
+A. Tetralogy of Fallot
+B. Transposition of the great arteries
+C. Truncus arteriosus
+D. Total anomalous pulmonary venous return
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q2 | difficult
+Prompt: Q: In rabies infection, which histological finding in hippocampal neurons is pathognomonic?
+Options:
+A. Councilman bodies
+B. Negri bodies
+C. Guarnieri bodies
+D. Lewy bodies
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q3 | difficult
+Prompt: Q: Which malaria species is most associated with splenic rupture?
+Options:
+A. Plasmodium vivax
+B. Plasmodium falciparum
+C. Plasmodium malariae
+D. Plasmodium ovale
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q4 | difficult
+Prompt: Q: In neonatal sepsis, which organism is most commonly implicated within the first 72 hours of life?
+Options:
+A. Listeria monocytogenes
+B. Escherichia coli
+C. Streptococcus agalactiae (Group B Strep)
+D. Klebsiella pneumoniae
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q5 | difficult
+Prompt: Q: What is the most specific ECG finding in hyperkalemia?
+Options:
+A. Prolonged QT interval
+B. U waves
+C. Peaked T waves
+D. Sine wave pattern
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q6 | difficult
+Prompt: Q: Which type of intracranial hemorrhage is classically described as 'crescent-shaped' on CT?
+Options:
+A. Epidural hematoma
+B. Subdural hematoma
+C. Subarachnoid hemorrhage
+D. Intraparenchymal hemorrhage
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q7 | difficult
+Prompt: Q: The presence of Howell–Jolly bodies on peripheral smear indicates dysfunction of which organ?
+Options:
+A. Liver
+B. Bone marrow
+C. Spleen
+D. Kidney
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q8 | difficult
+Prompt: Q: Which vitamin deficiency predisposes to Wernicke encephalopathy?
+Options:
+A. Vitamin B1 (thiamine)
+B. Vitamin B6 (pyridoxine)
+C. Vitamin B12 (cobalamin)
+D. Niacin (B3)
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q9 | difficult
+Prompt: Q: A patient with chronic liver disease presents with gynecomastia and spider angiomas. Which hormone is most likely elevated?
+Options:
+A. Progesterone
+B. Estrogen
+C. Testosterone
+D. Cortisol
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q10 | difficult
+Prompt: Q: Infective endocarditis due to IV drug use most commonly involves which valve?
+Options:
+A. Mitral valve
+B. Aortic valve
+C. Tricuspid valve
+D. Pulmonic valve
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q11 | difficult
+Prompt: Q: Which zoonotic infection is strongly linked to unpasteurized goat cheese consumption in endemic regions?
+Options:
+A. Leptospirosis
+B. Brucellosis
+C. Anthrax
+D. Q fever
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q12 | difficult
+Prompt: Q: What is the primary histological lesion in Rheumatic heart disease?
+Options:
+A. Negri bodies
+B. Aschoff bodies
+C. Reed–Sternberg cells
+D. Mallory bodies
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q13 | difficult
+Prompt: Q: Which electrolyte abnormality is most associated with Torsades de Pointes?
+Options:
+A. Hyperkalemia
+B. Hypomagnesemia
+C. Hypernatremia
+D. Hypocalcemia
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q14 | reasoning
+Prompt: Q: A 2-month-old infant with severe respiratory distress and continuous 'machinery' murmur is suspected to have a congenital heart defect. Which condition is most likely, and why?
+Options:
+
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
+Q15 | reasoning
+Prompt: Q: A patient from a malaria-endemic region presents with cyclical fevers every 48 hours and splenomegaly. Provide the most likely parasite and explain your reasoning briefly.
+Options:
+
+
+Please answer by starting your response with the single correct option letter (A, B, C, or D), followed by a space and then your explanation. For example: 'B. Because ...'.
+Answer:
+LLM Full Response:
+None
+Response Time: 0.00 seconds
+
