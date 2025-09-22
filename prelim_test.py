@@ -84,7 +84,8 @@ def main():
 
 
     # Write prompt and response to output file
-    output_path = 'llm_output.txt'
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    output_path = f"llm_output_{timestamp}.txt"
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write('PROMPT ' + model + ":\n")
         f.write(prompt + '\n\n')
