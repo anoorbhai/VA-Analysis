@@ -6,6 +6,7 @@ from functools import reduce
 FOLDER = Path("/dataA/madiva/va/VA")          # folder containing your CSVs
 OUTPUT = Path("VA_merged_cases.csv")  # output file path
 MAKE_PRESENCE_FLAGS = True   # add per-file presence boolean columns
+EXCLUDE_FILES = {"interva_cod"}
 # ----------------------------------
 
 def read_csv_with_prefix(fp: Path, make_presence: bool = True) -> pd.DataFrame:
@@ -64,7 +65,10 @@ def main():
     csv_files = sorted(FOLDER.glob("*.csv"))
     if not csv_files:
         raise FileNotFoundError(f"No CSV files found in {FOLDER.resolve()}")
-
+    
+    # Exclude files by stem (lowercase)
+    csv_files = [fp for fp in csv_files if fp.stem.lower() not in EXCLUDE_FILES]
+    
     dfs = [read_csv_with_prefix(fp, make_presence=MAKE_PRESENCE_FLAGS) for fp in csv_files]
     merged = outer_join_on_anonid(dfs)
 
