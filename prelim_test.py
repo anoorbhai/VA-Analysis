@@ -50,13 +50,13 @@ def main():
     model = 'llama3:latest'
     instructions = (
         "You are an experienced medical physician assisting with analysis of verbal autopsy.\n"
-        "Using only the information provided, provide the top three most likely causes of death.\n"
+        "Using only the information provided, provide the most likely causes of death.\n"
         "If information is insufficient, return unclassified.\nThis data was collected from a field research centre in South Africa's rural northeast.\n"
     )
 
-    csv_path = '/dataA/madiva/va/VA/RiskFactors.csv'
+    csv_path = '/home/noorbhaia/VA-Analysis/VA_merged_cases.csv'
     cod_csv_path = '/dataA/madiva/va/VA/InterVA_COD.csv'
-    target_anon_id = 'DDBFS'
+    target_anon_id = 'CTCBN'
 
     # Build the prompt using the updated function
     prompt = build_prompt(csv_path, target_anon_id, instructions)
