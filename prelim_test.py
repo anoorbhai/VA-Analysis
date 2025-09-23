@@ -9,21 +9,10 @@ def call_llm(model: str, prompt: str) -> str:
     )
     return result.stdout.decode("utf-8").strip()
 
-def main():
+def build_prompt(csv_path: str, target_anon_id: str, instructions: str = "") -> str:
     import csv
-    from datetime import datetime
-    model = 'llama3:latest'
-    instructions = (
-        "You are an experienced medical physician assisting with analysis of verbal autopsy.\n"
-        "Using only the information provided, provide the top three most likely causes of death.\n"
-        "If information is insufficient, return unclassified.\nThis data was collected from a field research centre in South Africa's rural northeast."
-    )
-    # Read the first row of Narrative.csv (after header)
-    csv_path = '/dataA/madiva/va/VA/Narrative.csv'
-    cod_csv_path = '/dataA/madiva/va/VA/InterVA_COD.csv'
-    target_anon_id = 'CYOZP'
 
-   # Extract narrative row
+    # Extract row
     with open(csv_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         row = None
@@ -33,32 +22,48 @@ def main():
                 break
 
     if row is None:
-        print(f"AnonId {target_anon_id} not found in Narrative.csv.")
+        print(f"AnonId {target_anon_id} not found in {csv_path}.")
+        return ""
+
+    # Build prompt dynamically from all columns
+    prompt_parts = []
+    
+    # Add instructions if provided
+    if instructions:
+        prompt_parts.append(instructions)
+    
+    # Add each column and its value
+    for column_name, value in row.items():
+        if value and value.strip():  # Only include non-empty values
+            # Clean up the value (strip whitespace, handle long text)
+            cleaned_value = value.strip()
+            prompt_parts.append(f"{column_name}: {cleaned_value}")
+    
+    # Join all parts with newlines
+    prompt = "\n".join(prompt_parts) + "\n\n"
+    
+    return prompt
+
+def main():
+    import csv
+    from datetime import datetime
+    model = 'llama3:latest'
+    instructions = (
+        "You are an experienced medical physician assisting with analysis of verbal autopsy.\n"
+        "Using only the information provided, provide the top three most likely causes of death.\n"
+        "If information is insufficient, return unclassified.\nThis data was collected from a field research centre in South Africa's rural northeast.\n"
+    )
+
+    csv_path = '/dataA/madiva/va/VA/RiskFactors.csv'
+    cod_csv_path = '/dataA/madiva/va/VA/InterVA_COD.csv'
+    target_anon_id = 'DDBFS'
+
+    # Build the prompt using the updated function
+    prompt = build_prompt(csv_path, target_anon_id, instructions)
+    
+    if not prompt:  # If build_prompt returned empty string (AnonId not found)
         return
 
-    # Extract fields
-    anon_id = row['AnonId']
-    dob = row['Dob']
-    dod = row['Dod']
-    sex = row['Sex']
-    interview_date = row['InterviewDate']
-    narrative = row['Narrative'].strip()
-    # Calculate age at death
-    try:
-        dob_dt = datetime.strptime(dob, '%Y-%m-%d')
-        dod_dt = datetime.strptime(dod, '%Y-%m-%d')
-        age_years = dod_dt.year - dob_dt.year - ((dod_dt.month, dod_dt.day) < (dob_dt.month, dob_dt.day))
-    except Exception:
-        age_years = 'unknown'
-    # Format sex
-    sex_str = 'female' if sex.upper() == 'F' else 'male'
-    # Build prompt
-    prompt = (
-        f"{instructions}"
-        f"The ID is {anon_id}\nThis person was born on {dob} and died on {dod}, making them {age_years} years old at the time of death.\n"
-        f"They were a {sex_str}\n. This data was collected from an interview conducted on {interview_date}.\n"
-        f"Here is the free text narrative provided by the family member:\n{narrative}\n\n"
-    )
     print(f"Prompting {model}...")
     llm_response = call_llm(model, prompt)
     print("LLM Response printed to file")
@@ -81,7 +86,6 @@ def main():
         )
     else:
         cod_text = "INTERVA COD: Not found for this AnonId.\n"
-
 
     # Write prompt and response to output file
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
