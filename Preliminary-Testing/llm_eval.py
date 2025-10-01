@@ -12,7 +12,6 @@ def load_questions(path: str) -> List[Dict]:
         data = json.load(f)
     return data['questions']
 
-
 def ask_questions_and_save(model: str, questions: List[Dict], output_file: str):
     with open(output_file, 'w') as out:
         for q in questions:
