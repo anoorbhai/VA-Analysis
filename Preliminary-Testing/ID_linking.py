@@ -3,7 +3,7 @@ from pathlib import Path
 from functools import reduce
 
 FOLDER = Path("/dataA/madiva/va/VA")         
-OUTPUT = Path("VA_merged_cases.csv")  
+OUTPUT = Path("/spaces/25G05/VA_merged_cases.csv")  
 MAKE_PRESENCE_FLAGS = True   
 EXCLUDE_FILES = {"interva_cod"}
 
