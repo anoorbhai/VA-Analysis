@@ -54,9 +54,9 @@ def main():
         "If information is insufficient, return unclassified.\nThis data was collected from a field research centre in South Africa's rural northeast.\n"
     )
 
-    csv_path = '/home/noorbhaia/VA-Analysis/VA_merged_cases.csv'
+    csv_path = '/spaces/25G05/VA_merged_cases.csv'
     cod_csv_path = '/dataA/madiva/va/VA/InterVA_COD.csv'
-    target_anon_id = 'CTCBN'
+    target_anon_id = 'BKFJZ'
 
     # Build the prompt using the updated function
     prompt = build_prompt(csv_path, target_anon_id, instructions)
@@ -89,7 +89,7 @@ def main():
 
     # Write prompt and response to output file
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_path = f"llm_output_{timestamp}.txt"
+    output_path = f"/spaces/25G05/llm_output_{timestamp}.txt"
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write('PROMPT ' + model + ":\n")
         f.write(prompt + '\n\n')
