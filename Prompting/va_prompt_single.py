@@ -30,10 +30,9 @@ def format_case_for_llm(row: pd.Series) -> str:
     for column_name, value in row.items():
         if column_name in EXCLUDE_FIELDS:
             continue
-        if pd.isna(value) or (isinstance(value, str) and value.strip() == '') or value == '-':
+        if pd.isna(value) or (isinstance(value, str) and value == ''):
             continue
-        cleaned_value = str(value).strip()
-        prompt_parts.append(f"{column_name}: {cleaned_value}")
+        prompt_parts.append(f"{column_name}: {value}")
     narrative = row.get('narrative', '')
     if pd.isna(narrative) or str(narrative).strip() == '':
         narrative = "No narrative provided"
@@ -41,7 +40,6 @@ def format_case_for_llm(row: pd.Series) -> str:
     prompt_parts.append(str(narrative).strip())
     prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis.")
     return "\n".join(prompt_parts)
-
 
 def main():
     if len(sys.argv) != 2:
@@ -70,8 +68,11 @@ def main():
         result = response.json()
         response_text = result.get('response', '')
         with open(OUTPUT_TXT_PATH, 'w') as f:
+            f.write("PROMPT SENT TO LLM:\n")
+            f.write(prompt)
+            f.write("\n\nLLM RESPONSE:\n")
             f.write(response_text)
-        print(f"Response written to {OUTPUT_TXT_PATH}")
+        print(f"Prompt and response written to {OUTPUT_TXT_PATH}")
     else:
         print(f"Ollama API error: {response.status_code} - {response.text}")
         sys.exit(1)
