@@ -304,6 +304,10 @@ class LlamaVAProcessor:
             logger.error(f"Failed to save final results: {e}")
             raise
 
+    def load_valid_ids(self, clinician_cod_path: str) -> set:
+        df_cod = pd.read_csv(clinician_cod_path)
+        return set(df_cod['individual_id'].dropna().astype(str))
+
 def main():
     """Main execution function"""
     logger.info("Starting Llama3 Zero-Shot VA Analysis")
@@ -314,8 +318,9 @@ def main():
     processor = LlamaVAProcessor()
     
     try:
-        # Load and process dataset
+        valid_ids = processor.load_valid_ids("/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv")
         df = processor.load_dataset()
+        df_filtered = df[df['individual_id'].astype(str).isin(valid_ids)]
         
         # For testing, you can limit the number of cases
         max_cases = 5  # Uncomment for testing with first 5 cases
@@ -323,7 +328,7 @@ def main():
         
         # Process cases through LLM
         logger.info("Starting LLM processing...")
-        results = processor.process_cases(df, max_cases=max_cases)
+        results = processor.process_cases(df_filtered, max_cases=max_cases)
         
         # Save results
         processor.save_final_results(results)
