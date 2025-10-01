@@ -56,7 +56,7 @@ def main():
 
     csv_path = '/spaces/25G05/VA_merged_cases.csv'
     cod_csv_path = '/dataA/madiva/va/VA/InterVA_COD.csv'
-    target_anon_id = 'BKFJZ'
+    target_anon_id = 'CZEFF'
 
     # Build the prompt using the updated function
     prompt = build_prompt(csv_path, target_anon_id, instructions)
