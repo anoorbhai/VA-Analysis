@@ -17,12 +17,13 @@ from pathlib import Path
 import logging
 from typing import Dict, List, Tuple, Optional
 
-# Configure logging
+# Configure logging with timestamped filename
+log_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('llama3_zeroshot.log'),
+        logging.FileHandler(f'llama3_zeroshot_{log_timestamp}.log'),
         logging.StreamHandler()
     ]
 )
