@@ -449,6 +449,9 @@ def main():
         "prompt": prompt,
         "stream": False,
         "format": "json",
+        "options": {
+            "report_usage": True   # tells Ollama to include token usage in its response
+        }
     }
     
     response = requests.post(OLLAMA_API_URL, json=payload, timeout=300)
@@ -456,12 +459,20 @@ def main():
     if response.status_code == 200:
         result = response.json()
         response_text = result.get('response', '')
+
+        input_tokens = result.get("prompt_eval_count", 0)
+        output_tokens = result.get("eval_count", 0)
+        total_tokens = input_tokens + output_tokens
         
         with open(OUTPUT_TXT_PATH, 'w') as f:
             f.write("PROMPT SENT TO LLM:\n")
             f.write(prompt)
             f.write("\n\nLLM RESPONSE:\n")
             f.write(response_text)
+            f.write("\n\n--- TOKEN USAGE ---\n")
+            f.write(f"Input tokens: {input_tokens}\n")
+            f.write(f"Output tokens: {output_tokens}\n")
+            f.write(f"Total tokens: {total_tokens}\n")
         
         print(f"Prompt and response written to {OUTPUT_TXT_PATH}")
     else:
