@@ -6,7 +6,7 @@ from typing import Optional, List
 
 # ---------- CONFIG ----------
 # Filtering options
-REMOVE_MISSING_ICD10 = False    # Remove entries with missing/empty clinician ICD-10 codes
+REMOVE_MISSING_ICD10 = True    # Remove entries with missing/empty clinician ICD-10 codes
 REMOVE_R99_CODES = False        # Remove entries with R99 (ill-defined causes) codes
 
 LOG_FILE = "/spaces/25G05/ZeroShot/evaluation_log.txt"
@@ -40,11 +40,24 @@ def icd_root_or_none(text: str) -> Optional[str]:
 llm_df = pd.read_csv(LLM_RESULTS_CSV)
 clin_df = pd.read_csv(CLINICIAN_CSV)
 
+# Load insilicova predictions from main VA dataset
+insilicova_CSV = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
+insilicova_df = pd.read_csv(insilicova_CSV)
+
+# Select only the insilicova prediction columns we need
+insilicova_cols = ['individual_id', 'cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
+insilicova_df = insilicova_df[insilicova_cols]
+
 # Normalize ID column name
 llm_df = llm_df.rename(columns={"id": "individual_id"})
 
 # ---------- MERGE ----------
+# First merge LLM results with clinician data
 df = pd.merge(llm_df, clin_df, on="individual_id", how="inner")
+
+# Then merge with insilicova predictions
+df = pd.merge(df, insilicova_df, on="individual_id", how="left")  # left join to keep all LLM results
+print(f"Merged with insilicova predictions. Final dataset has {len(df)} entries.")
 
 # ---------- FILTER DATA ----------
 initial_count = len(df)
@@ -161,13 +174,20 @@ print(f"Results logged to: {LOG_FILE}")
 # ---------- WRITE OUTPUT ----------
 out_cols = [
     "individual_id",
-    "llm_icd10_raw",               # NEW: original non-cleaned LLM field
+    "llm_icd10_raw",               # original non-cleaned LLM field
     "llm_icd10_code",              # cleaned roots (e.g., J18;L51)
     "llm_english_description",
     "clinician_english_description",
     "clinician_icd10_code",        # cleaned clinician root used for comparison
     "correct",
-    "correct_first_letter",        # NEW: less strict matching (first letter only)
+    "correct_first_letter",        # less strict matching (first letter only)
+    # insilicova predictions
+    "cause1",                      # insilicova top prediction
+    "prob1",                       # insilicova top prediction probability
+    "cause2",                      # insilicova second prediction
+    "prob2",                       # insilicova second prediction probability
+    "cause3",                      # insilicova third prediction
+    "prob3",                       # insilicova third prediction probability
 ]
 out_df = df[out_cols].rename(columns={"individual_id": "ID"})
 out_df.to_csv(OUTPUT_EVAL_CSV, index=False)
