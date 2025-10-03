@@ -5,6 +5,11 @@ from datetime import datetime
 from typing import Optional, List
 
 # ---------- CONFIG ----------
+# Filtering options
+REMOVE_MISSING_ICD10 = False    # Remove entries with missing/empty clinician ICD-10 codes
+REMOVE_R99_CODES = False        # Remove entries with R99 (ill-defined causes) codes
+
+LOG_FILE = "/spaces/25G05/ZeroShot/evaluation_log.txt"
 LLM_RESULTS_CSV = "/spaces/25G05/ZeroShot/llama3_zeroshot_results_20251001.csv" 
 CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
 
@@ -42,14 +47,40 @@ llm_df = llm_df.rename(columns={"id": "individual_id"})
 df = pd.merge(llm_df, clin_df, on="individual_id", how="inner")
 
 # ---------- FILTER DATA ----------
-# Exclude entries with R99 or missing/invalid clinician ICD-10 codes
 initial_count = len(df)
-df = df[df["ICD10Code"].notna()]  # Remove NaN values
-df = df[df["ICD10Code"].astype(str).str.strip() != ""]  # Remove empty strings
-df = df[~df["ICD10Code"].astype(str).str.upper().str.startswith("R99")]  # Remove R99 codes
+filter_reasons = []
+
+if REMOVE_MISSING_ICD10:
+    before_missing = len(df)
+    df = df[df["ICD10Code"].notna()]  # Remove NaN values
+    df = df[df["ICD10Code"].astype(str).str.strip() != ""]  # Remove empty strings
+    missing_filtered = before_missing - len(df)
+    if missing_filtered > 0:
+        filter_reasons.append(f"{missing_filtered} missing ICD-10 codes")
+
+if REMOVE_R99_CODES:
+    before_r99 = len(df)
+    df = df[~df["ICD10Code"].astype(str).str.upper().str.startswith("R99")]  # Remove R99 codes
+    r99_filtered = before_r99 - len(df)
+    if r99_filtered > 0:
+        filter_reasons.append(f"{r99_filtered} R99 codes")
+
 filtered_count = len(df)
-print(f"Filtered out {initial_count - filtered_count} entries (R99 codes or missing ICD-10 codes)")
+total_filtered = initial_count - filtered_count
+
+if total_filtered > 0:
+    print(f"Filtered out {total_filtered} entries ({', '.join(filter_reasons)})")
+else:
+    print("No entries filtered")
 print(f"Remaining entries for evaluation: {filtered_count}")
+
+# Update filter description for logging
+filter_description = []
+if REMOVE_MISSING_ICD10:
+    filter_description.append("missing ICD-10")
+if REMOVE_R99_CODES:
+    filter_description.append("R99 codes")
+filter_desc = " and ".join(filter_description) if filter_description else "none"
 
 # ---------- COMPUTE FIELDS ----------
 # Preserve original LLM ICD-10 text (non-cleaned)
@@ -97,6 +128,35 @@ print(f"Correct matches (exact root): {correct_n}")
 print(f"Accuracy (exact root match): {accuracy:.2%}")
 print(f"Correct matches (first letter): {correct_first_letter_n}")
 print(f"Accuracy (less strict - first letter): {accuracy_first_letter:.2%}")
+
+# ---------- LOG RESULTS ----------
+log_entry = f"""
+{'='*60}
+Evaluation Run: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+{'='*60}
+LLM Results File: {LLM_RESULTS_CSV}
+Clinician File: {CLINICIAN_CSV}
+Output File: {OUTPUT_EVAL_CSV}
+
+Filtering Settings:
+- Remove missing ICD-10: {REMOVE_MISSING_ICD10}
+- Remove R99 codes: {REMOVE_R99_CODES}
+
+Initial entries: {initial_count}
+Filtered out: {total_filtered} ({filter_desc})
+Final entries evaluated: {total}
+
+Results:
+- Correct matches (exact root): {correct_n}/{total} = {accuracy:.2%}
+- Correct matches (first letter): {correct_first_letter_n}/{total} = {accuracy_first_letter:.2%}
+
+"""
+
+# Append to log file
+with open(LOG_FILE, 'a', encoding='utf-8') as f:
+    f.write(log_entry)
+
+print(f"Results logged to: {LOG_FILE}")
 
 # ---------- WRITE OUTPUT ----------
 out_cols = [
