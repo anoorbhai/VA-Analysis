@@ -688,6 +688,17 @@ class LlamaVAProcessor:
 
     def load_valid_ids(self, clinician_cod_path: str) -> set:
         df_cod = pd.read_csv(clinician_cod_path)
+        
+        # Filter out entries with NR or empty ICD10 codes
+        initial_count = len(df_cod)
+        df_cod = df_cod[df_cod['ICD10Code'].notna()]  # Remove NaN values
+        df_cod = df_cod[df_cod['ICD10Code'].astype(str).str.strip() != ""]  # Remove empty strings
+        df_cod = df_cod[df_cod['ICD10Code'].astype(str).str.upper() != "NR"]  # Remove NR codes
+        filtered_count = len(df_cod)
+        
+        logger.info(f"Clinician dataset filtering: {initial_count} -> {filtered_count} entries")
+        logger.info(f"Excluded {initial_count - filtered_count} entries with NR or missing ICD-10 codes")
+        
         return set(df_cod['individual_id'].dropna().astype(str))
 
 def main():
