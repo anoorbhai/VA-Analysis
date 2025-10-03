@@ -33,11 +33,19 @@ PARAMETER top_k 40
 
 # FEW-SHOT EXAMPLES (kept verbatim)
 EXAMPLE """
-Questionnaire ID: LBDSL
-Verbal autopsy:
-He start by diarrhoea and weak body, left over treatment from hospital was given but 
-nothing change, after two days diarrhoea and weak body was worse he taken to hospital 
-as an outpatient the doctor said he defaulted treatment for HIV, water drip, syrup w
+SYMPTOM DATA:
+Age at Death: 69
+Sex: m
+Did s(he) die during the wet season?: y
+Was he male?: y
+Was s(he) aged 65 years or more at death?: y
+Did the final illness last less than 3 weeks?: y
+Did (s)he have diarrhoea?: y
+During the illness that led to death, did (s)he vomit?: y
+Did (s)he drink alcohol?: y
+Did (s)he smoke tobacco (cigarette, cigar, pipe, etc.)?: y
+Narrative: This was a sudden death where the deceased started vomiting and experienced diarrhoea for one night after having taken traditional beer, he was taken to hospital where he died before attended.
+
 Response:
 cause_of_death,confidence
 HIV/AIDS related death,0.99999985134729 
