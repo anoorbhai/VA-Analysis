@@ -8,13 +8,15 @@ The provided data was collected from a field research centre in South Africa's r
 
 We will provide, for each case:
 - A list of binary questions about medical history, lifestyle and symptoms, where:
-  y = yes, n = no, - = no answer
+  y = yes, n = no
 - A free-text narrative provided by a family member.
 
-Using only the information provided:
-1) Determine the single most likely cause of death.
-2) Provide the ICD-10 code.
-3) Confidence Level in your answer as a percentage
+Your task is to:
+1) Identify the single most likely cause of death, based solely on the provided information.
+2) Provide the corresponding ICD-10 code. The code must be exactly three characters with no decimal point, e.g., `"A41"` not `"A41.9"`.
+3) Estimate your confidence level in your answer as a percentage. 
+
+If the information is insufficient to determine a cause of death, explicitly state that in the output.
 
 Return ONE JSON object with EXACTLY these keys:
 {
