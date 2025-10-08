@@ -16,10 +16,11 @@ from pathlib import Path
 
 # Constants
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
-MODEL_NAME = "llama3_VA:latest"
+MODEL_NAME = "llama4_VA:latest"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 OUTPUT_TXT_PATH = "/spaces/25G05/ZeroShot/llama3_single_output.txt"
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
+ICD10_CODES_FILE = "/home/noorbhaia/VA-Analysis/icd10_codes_all.txt"
 
 # Field code to English meaning mapping
 FIELD_MAPPINGS = {
@@ -387,10 +388,30 @@ FIELD_MAPPINGS = {
 }
 
 
+def load_icd10_codes() -> str:
+    """Load ICD-10 codes from the text file"""
+    try:
+        with open(ICD10_CODES_FILE, 'r', encoding='utf-8') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        print(f"Warning: ICD-10 codes file not found at {ICD10_CODES_FILE}")
+        return "ICD-10 codes file not available"
+    except Exception as e:
+        print(f"Error reading ICD-10 codes file: {e}")
+        return "Error loading ICD-10 codes"
+
+
 def format_case_for_llm(row: pd.Series) -> str:
     prompt_parts = []
     individual_id = row.get('individual_id', 'Unknown')
     prompt_parts.append(f"Case ID: {individual_id}")
+    
+    # Add ICD-10 codes section
+    prompt_parts.append("\nICD-10 REFERENCE CODES:")
+    prompt_parts.append("Use the following ICD-10 codes as reference for your diagnosis:")
+    icd10_codes = load_icd10_codes()
+    prompt_parts.append(icd10_codes)
+    
     prompt_parts.append("\nSYMPTOM DATA:")
     
     for column_name, value in row.items():
@@ -418,7 +439,7 @@ def format_case_for_llm(row: pd.Series) -> str:
     
     prompt_parts.append("\nNARRATIVE:")
     prompt_parts.append(str(narrative).strip())
-    prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis.")
+    prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis using the appropriate ICD-10 code from the reference list above.")
     
     return "\n".join(prompt_parts)
 
@@ -449,7 +470,6 @@ def main():
         "model": MODEL_NAME,
         "prompt": prompt,
         "stream": False,
-        "format": "json",
         "options": {
             "report_usage": True   # tells Ollama to include token usage in its response
         }
