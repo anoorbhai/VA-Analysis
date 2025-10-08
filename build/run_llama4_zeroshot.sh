@@ -11,4 +11,4 @@
 cd /home/noorbhaia/VA-Analysis
 
 # Run the Python script
-python Prompting/Llama4_ZeroShot.py
+python Prompting/Llama4_ZeroShot_COD.py
