@@ -33,9 +33,9 @@ logger = logging.getLogger(__name__)
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 # Generate timestamped output filename
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_CSV_PATH = f"/spaces/25G05/ZeroShot/llama3_zeroshot_COD_results_{timestamp}.csv"
+OUTPUT_CSV_PATH = f"/spaces/25G05/CODlist/llama3_zeroshot_COD_results_{timestamp}.csv"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3_VA:latest" 
+MODEL_NAME = "Llama3_8b_zero_COD:latest" 
 
 # Fields to exclude as specified
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
@@ -429,7 +429,7 @@ class LlamaVAProcessor:
                 else:
                     logger.warning(f"⚠ Model '{MODEL_NAME}' not found. Available models: {model_names}")
                     logger.warning(f"Please build the model from the Modelfile first:")
-                    logger.warning(f"ollama create {MODEL_NAME} -f /home/seedatr/VA-Analysis/Models/Llama3_8b_COD_zero")
+                    logger.warning(f"ollama create {MODEL_NAME} -f /home/seedatr/VA-Analysis/Models/Llama3_8b_zero_COD")
             else:
                 logger.error(f"Failed to connect to Ollama: HTTP {response.status_code}")
                 
