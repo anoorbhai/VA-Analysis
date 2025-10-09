@@ -1,24 +1,43 @@
 #!/usr/bin/env python3
 """
-Single Case Verbal Autopsy Llama3 Prompt Script
+Llama3 Zero-Shot Verbal Autopsy Analysis Script
 
-This script lets you input an individual_id, extracts the corresponding row from the VA dataset,
-formats all columns and values into a prompt with human-readable field names, sends it to the Llama3 model via Ollama, and writes the full response to an output text file.
-
-Usage:
-    python va_prompt_single.py <individual_id>
+This script processes the VA dataset using Llama3 for cause of death prediction.
+It excludes cause/probability fields and uses the LLM to make predictions based on
+symptom data and narratives.
 """
 
-import sys
 import pandas as pd
 import requests
+import json
+import time
+import re
+from datetime import datetime
 from pathlib import Path
+import logging
+from typing import Dict, List, Tuple, Optional
+
+# Configure logging with timestamped filename
+log_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(f'deepseekR1_zeroshot_{log_timestamp}.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Constants
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
-MODEL_NAME = "deepseek_8b_VA:latest"
+# Generate timestamped output filename
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+OUTPUT_CSV_PATH = f"/spaces/25G05/ZeroShot/deepseekR1_zeroshot_results_{timestamp}.csv"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-OUTPUT_TXT_PATH = "/spaces/25G05/ZeroShot/deepseekR1_COD_single_output.txt"
+MODEL_NAME = "deepseek_8b_VA:latest" 
+
+# Fields to exclude as specified
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
 
 # Field code to English meaning mapping
@@ -386,98 +405,373 @@ FIELD_MAPPINGS = {
     'narrative': 'Narrative'
 }
 
-def format_case_for_llm(row: pd.Series) -> str:
-    prompt_parts = []
-    individual_id = row.get('individual_id', 'Unknown')
-    prompt_parts.append(f"Case ID: {individual_id}")
-    prompt_parts.append("\nSYMPTOM DATA:")
+class LlamaVAProcessor:
+    """Main processor class for VA analysis using Llama3"""
     
-    for column_name, value in row.items():
-        if column_name in EXCLUDE_FIELDS:
-            continue
-        if pd.isna(value) or (isinstance(value, str) and value == ''):
-            continue
+    def __init__(self):
+        self.session = requests.Session()
+        self.results = []
+        self.check_ollama_connection()
+    
+    def check_ollama_connection(self):
+        """Check if Ollama is running and model is available"""
+        try:
+            # Test connection to Ollama
+            test_url = "http://localhost:11434/api/tags"
+            response = self.session.get(test_url, timeout=10)
+            
+            if response.status_code == 200:
+                models = response.json().get('models', [])
+                model_names = [model.get('name', '') for model in models]
+                
+                if MODEL_NAME in model_names:
+                    logger.info(f"✓ Ollama is running and model '{MODEL_NAME}' is available")
+                else:
+                    logger.warning(f"⚠ Model '{MODEL_NAME}' not found. Available models: {model_names}")
+                    logger.warning(f"Please build the model from the Modelfile first:")
+                    logger.warning(f"ollama create {MODEL_NAME} -f /home/noorbhaia/VA-Analysis/Prompting/Modelfile")
+            else:
+                logger.error(f"Failed to connect to Ollama: HTTP {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"Failed to connect to Ollama: {e}")
+            logger.error("Please ensure Ollama is running: ollama serve")
         
-        # Skip fields with '-' values - only include 'y' and 'n' responses
-        if isinstance(value, str) and value.strip() == '-':
-            continue
+    def load_dataset(self) -> pd.DataFrame:
+        """Load the VA dataset and exclude specified fields"""
+        logger.info(f"Loading dataset from {INPUT_CSV_PATH}")
         
-        # For binary fields, only include if value is 'y' or 'n'
-        if column_name.startswith('i') and isinstance(value, str):
-            if value.strip().lower() not in ['y', 'n']:
+        try:
+            df = pd.read_csv(INPUT_CSV_PATH)
+            logger.info(f"Loaded {len(df)} records with {len(df.columns)} columns")
+            
+            # Remove excluded fields
+            columns_to_keep = [col for col in df.columns if col not in EXCLUDE_FIELDS]
+            df_filtered = df[columns_to_keep]
+            
+            excluded_count = len(df.columns) - len(df_filtered.columns)
+            logger.info(f"Excluded {excluded_count} fields: {EXCLUDE_FIELDS}")
+            logger.info(f"Dataset now has {len(df_filtered.columns)} columns")
+            
+            return df_filtered
+            
+        except FileNotFoundError:
+            logger.error(f"Dataset file not found: {INPUT_CSV_PATH}")
+            raise
+        except Exception as e:
+            logger.error(f"Error loading dataset: {e}")
+            raise
+    
+    def format_case_for_llm(self, row: pd.Series) -> str:
+        """Format a single case for LLM input using human-readable field names and filtering out '-' values."""
+        prompt_parts = []
+        individual_id = row.get('individual_id', 'Unknown')
+        prompt_parts.append(f"Case ID: {individual_id}")
+        prompt_parts.append("\nSYMPTOM DATA:")
+        
+        for column_name, value in row.items():
+            if column_name in EXCLUDE_FIELDS:
+                continue
+            if pd.isna(value) or (isinstance(value, str) and value == ''):
                 continue
             
-        # Get human-readable field name
-        field_name = FIELD_MAPPINGS.get(column_name, column_name)
-        prompt_parts.append(f"{field_name}: {value}")
+            # Skip fields with '-' values - only include 'y' and 'n' responses
+            if isinstance(value, str) and value.strip() == '-':
+                continue
+            
+            # For binary fields, only include if value is 'y' or 'n'
+            if column_name.startswith('i') and isinstance(value, str):
+                if value.strip().lower() not in ['y', 'n']:
+                    continue
+                    
+            # Get human-readable field name
+            field_name = FIELD_MAPPINGS.get(column_name, column_name)
+            prompt_parts.append(f"{field_name}: {value}")
+        
+        narrative = row.get('narrative', '')
+        if pd.isna(narrative) or str(narrative).strip() == '':
+            narrative = "No narrative provided"
+        
+        prompt_parts.append("\nNARRATIVE:")
+        prompt_parts.append(str(narrative).strip())
+        prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis.")
+        
+        return "\n".join(prompt_parts)
     
-    narrative = row.get('narrative', '')
-    if pd.isna(narrative) or str(narrative).strip() == '':
-        narrative = "No narrative provided"
+    def query_llm(self, prompt: str) -> Tuple[Optional[str], Optional[str], Optional[int], float]:
+        """
+        Query the Ollama LLM and parse the response
+        
+        Returns:
+            Tuple of (cause_short, icd10_code, confidence, execution_time)
+        """
+        start_time = time.time()
+        
+        try:
+            # Prepare the request payload
+            payload = {
+                "model": MODEL_NAME,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json",
+            }
+            
+            # Make the API request
+            logger.debug("Sending request to Ollama API")
+            response = self.session.post(
+                OLLAMA_API_URL, 
+                json=payload
+            )
+            
+            execution_time = time.time() - start_time
+            
+            if response.status_code == 200:
+                result = response.json()
+                response_text = result.get('response', '')
+                
+                # Parse the structured response
+                cause_short, icd10_code, confidence = self.parse_llm_response(response_text)
+                
+                logger.debug(f"LLM response parsed: cause={cause_short}, icd10={icd10_code}, conf={confidence}")
+                return cause_short, icd10_code, confidence, execution_time
+                
+            else:
+                logger.error(f"Ollama API error: {response.status_code} - {response.text}")
+                return None, None, None, execution_time
+                
+        except requests.exceptions.Timeout:
+            execution_time = time.time() - start_time
+            logger.error("Request timed out")
+            return None, None, None, execution_time
+            
+        except Exception as e:
+            execution_time = time.time() - start_time
+            logger.error(f"Error querying LLM: {e}")
+            return None, None, None, execution_time
     
-    prompt_parts.append("\nNARRATIVE:")
-    prompt_parts.append(str(narrative).strip())
-    prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis.")
+    def parse_llm_response(self, response_text: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
+        """
+        Parse the structured LLM response to extract cause, ICD10, and confidence
+        
+        Expected format:
+        { "ID": "DOBMC", "CAUSE_SHORT": "Acute Respiratory Tract Infection (Pneumonia)", "ICD10": "J18.0", "CONFIDENCE": "90" }
+        """
+        try:
+            # Clean the response text to handle DeepSeek's formatting with blank lines inside JSON
+            cleaned_text = response_text.strip()
+            
+            # Find JSON boundaries
+            json_start = cleaned_text.find('{')
+            json_end = cleaned_text.rfind('}')
+            
+            if json_start != -1 and json_end != -1 and json_end > json_start:
+                # Extract the JSON content
+                json_content = cleaned_text[json_start:json_end + 1]
+                
+                # Remove extra blank lines and normalize whitespace within the JSON
+                # Split into lines, remove empty lines, and rejoin
+                lines = json_content.split('\n')
+                cleaned_lines = []
+                
+                for line in lines:
+                    stripped_line = line.strip()
+                    if stripped_line:  # Only keep non-empty lines
+                        cleaned_lines.append(stripped_line)
+                
+                # Rejoin the cleaned lines
+                clean_json = '\n'.join(cleaned_lines)
+                
+                logger.debug(f"Original JSON: {json_content}")
+                logger.debug(f"Cleaned JSON: {clean_json}")
+                
+                data = json.loads(clean_json)
+                cause_short = data.get("CAUSE_SHORT")
+                icd10_code = data.get("ICD10")
+                confidence = data.get("CONFIDENCE")
+                
+                if confidence is not None:
+                    try:
+                        confidence = int(confidence)
+                    except ValueError:
+                        confidence = None
+                        
+                return cause_short, icd10_code, confidence
+            else:
+                logger.error("Could not find valid JSON structure in response")
+                logger.debug(f"Response text: {response_text}")
+                return None, None, None
+                
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parsing error: {e}")
+            logger.debug(f"Response text: {response_text}")
+            return None, None, None
+        except Exception as e:
+            logger.error(f"Error parsing LLM response: {e}")
+            logger.debug(f"Response text: {response_text}")
+            return None, None, None
     
-    return "\n".join(prompt_parts)
+    def process_cases(self, df: pd.DataFrame, start_idx: int = 0, max_cases: Optional[int] = None) -> List[Dict]:
+        """
+        Process cases through the LLM with timing and error handling
+        
+        Args:
+            df: DataFrame with VA cases
+            start_idx: Starting index for processing (for resuming)
+            max_cases: Maximum number of cases to process (for testing)
+            
+        Returns:
+            List of result dictionaries
+        """
+        results = []
+        total_cases = len(df) if max_cases is None else min(max_cases, len(df))
+        end_idx = start_idx + total_cases if max_cases else len(df)
+        
+        logger.info(f"Processing {total_cases} cases (indices {start_idx} to {end_idx-1})")
+        
+        # Track total processing time
+        total_start_time = time.time()
+        
+        for idx in range(start_idx, min(end_idx, len(df))):
+            row = df.iloc[idx]
+            individual_id = row.get('individual_id', f'Unknown_{idx}')
+            
+            logger.info(f"Processing case {idx+1}/{len(df)}: {individual_id}")
+            
+            try:
+                # Format case for LLM
+                prompt = self.format_case_for_llm(row)
+                
+                # Query LLM
+                cause_short, icd10_code, confidence, execution_time = self.query_llm(prompt)
+                
+                # Store result
+                result = {
+                    'id': individual_id,
+                    'cause_of_death': cause_short or 'ERROR',
+                    'icd10_code': icd10_code or 'ERROR',
+                    'confidence': confidence,
+                    'time_taken_seconds': round(execution_time, 2),
+                    'processed_at': datetime.now().isoformat()
+                }
+                
+                results.append(result)
+                
+                # Log progress
+                if cause_short:
+                    logger.info(f"Success: {individual_id} -> {execution_time:.2f}s")
+                else:
+                    logger.warning(f"Failed to get valid response for {individual_id}")
+                
+            except Exception as e:
+                logger.error(f"Unexpected error processing case {individual_id}: {e}")
+                result = {
+                    'id': individual_id,
+                    'cause_of_death': 'PROCESSING_ERROR',
+                    'icd10_code': 'ERROR',
+                    'confidence': None,
+                    'time_taken_seconds': 0,
+                    'processed_at': datetime.now().isoformat()
+                }
+                results.append(result)
+        
+        # Calculate and log total processing time
+        total_processing_time = time.time() - total_start_time
+        avg_time = sum([r['time_taken_seconds'] for r in results]) / len(results) if results else 0
+        
+        logger.info(f"Total processing time: {total_processing_time:.2f} seconds")
+        logger.info(f"Average time per case: {avg_time:.2f} seconds")
+        
+        return results
+    
 
+    
+    def save_final_results(self, results: List[Dict], total_processing_time: float):
+        """Save final results to CSV"""
+        try:
+            df_results = pd.DataFrame(results)
+            
+            # Calculate summary statistics
+            successful_cases = len([r for r in results if r['cause_of_death'] not in ['ERROR', 'PROCESSING_ERROR']])
+            avg_time = sum([r['time_taken_seconds'] for r in results]) / len(results) if results else 0
+            
+            # Add summary row with totals
+            summary_row = {
+                'id': 'SUMMARY',
+                'cause_of_death': f'Success Rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)',
+                'icd10_code': 'SUMMARY',
+                'confidence': None,
+                'time_taken_seconds': avg_time,
+                'processed_at': f'Total Processing Time: {total_processing_time:.2f}s'
+            }
+            
+            # Append summary row to results
+            df_results = pd.concat([df_results, pd.DataFrame([summary_row])], ignore_index=True)
+            
+            # Ensure the output directory exists
+            output_dir = Path(OUTPUT_CSV_PATH).parent
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save to CSV
+            df_results.to_csv(OUTPUT_CSV_PATH, index=False)
+            
+            logger.info(f"Final results saved to {OUTPUT_CSV_PATH}")
+            logger.info(f"Processed {len(results)} cases total")
+            logger.info(f"Success rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)")
+            logger.info(f"Average processing time: {avg_time:.2f} seconds per case")
+            logger.info(f"Total processing time: {total_processing_time:.2f} seconds")
+            
+        except Exception as e:
+            logger.error(f"Failed to save final results: {e}")
+            raise
+
+    def load_valid_ids(self, clinician_cod_path: str) -> set:
+        df_cod = pd.read_csv(clinician_cod_path)
+        
+        # Filter out entries with NR or empty ICD10 codes
+        initial_count = len(df_cod)
+        df_cod = df_cod[df_cod['ICD10Code'].notna()]  # Remove NaN values
+        df_cod = df_cod[df_cod['ICD10Code'].astype(str).str.strip() != ""]  # Remove empty strings
+        df_cod = df_cod[df_cod['ICD10Code'].astype(str).str.upper() != "NR"]  # Remove NR codes
+        filtered_count = len(df_cod)
+        
+        logger.info(f"Clinician dataset filtering: {initial_count} -> {filtered_count} entries")
+        logger.info(f"Excluded {initial_count - filtered_count} entries with NR or missing ICD-10 codes")
+        
+        return set(df_cod['individual_id'].dropna().astype(str))
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python va_prompt_single.py <individual_id>")
-        sys.exit(1)
+    """Main execution function"""
+    logger.info("Starting Llama3 Zero-Shot VA Analysis")
+    logger.info(f"Input: {INPUT_CSV_PATH}")
+    logger.info(f"Output: {OUTPUT_CSV_PATH}")
+    logger.info(f"Model: {MODEL_NAME}")
     
-    individual_id = sys.argv[1]
+    processor = LlamaVAProcessor()
     
-    # Load dataset
-    df = pd.read_csv(INPUT_CSV_PATH)
-    
-    # Find row by individual_id
-    row = df[df['individual_id'] == individual_id]
-    if row.empty:
-        print(f"No case found for individual_id: {individual_id}")
-        sys.exit(1)
-    
-    row = row.iloc[0]
-    
-    # Format prompt with human-readable field names
-    prompt = format_case_for_llm(row)
-    
-    # Query Llama3 via Ollama
-    payload = {
-        "model": MODEL_NAME,
-        "prompt": prompt,
-        "stream": False,
-        "format": "json",
-        "options": {
-            "report_usage": True   # tells Ollama to include token usage in its response
-        }
-    }
-    
-    response = requests.post(OLLAMA_API_URL, json=payload, timeout=300)
-    
-    if response.status_code == 200:
-        result = response.json()
-        response_text = result.get('response', '')
-
-        input_tokens = result.get("prompt_eval_count", 0)
-        output_tokens = result.get("eval_count", 0)
-        total_tokens = input_tokens + output_tokens
+    try:
+        valid_ids = processor.load_valid_ids("/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv")
+        df = processor.load_dataset()
+        df_filtered = df[df['individual_id'].astype(str).isin(valid_ids)]
         
-        with open(OUTPUT_TXT_PATH, 'w') as f:
-            f.write("PROMPT SENT TO LLM:\n")
-            f.write(prompt)
-            f.write("\n\nLLM RESPONSE:\n")
-            f.write(response_text)
-            f.write("\n\n--- TOKEN USAGE ---\n")
-            f.write(f"Input tokens: {input_tokens}\n")
-            f.write(f"Output tokens: {output_tokens}\n")
-            f.write(f"Total tokens: {total_tokens}\n")
+        # For testing, you can limit the number of cases
+        max_cases = 1000  # Process all cases
         
-        print(f"Prompt and response written to {OUTPUT_TXT_PATH}")
-    else:
-        print(f"Ollama API error: {response.status_code} - {response.text}")
-        sys.exit(1)
-
+        # Process cases through LLM
+        logger.info("Starting LLM processing...")
+        start_time = time.time()
+        results = processor.process_cases(df_filtered, max_cases=max_cases)
+        total_processing_time = time.time() - start_time
+        
+        # Save results
+        processor.save_final_results(results, total_processing_time)
+        
+        logger.info("Processing completed successfully!")
+        
+    except KeyboardInterrupt:
+        logger.info("Processing interrupted by user")
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        raise
+    
 if __name__ == "__main__":
     main()
