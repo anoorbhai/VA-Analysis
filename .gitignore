@@ -209,3 +209,7 @@ __marimo__/
 
 *.txt
 VA_merged_cases.csv
+
+*.log
+*.err
+*.out
