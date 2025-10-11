@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=llama3_70b_va
-#SBATCH --output=llama3_70b_va_%j.out
-#SBATCH --error=llama3_70b_va_%j.err
+#SBATCH --output=logs/llama3_70b_va_%j.out
+#SBATCH --error=logs/llama3_70b_va_%j.err
 #SBATCH --time=7-00:00:00
 #SBATCH --reservation=gpu
 #SBATCH --gres=gpu:1
