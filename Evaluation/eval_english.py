@@ -16,13 +16,13 @@ ENABLE_SEMANTIC_COMPARISON = True  # Enable/disable semantic comparison
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 COMPARISON_MODEL = "llama3:latest"  # Model for semantic comparison
 
-LOG_FILE = "/spaces/25G05/ZeroShot/evaluation_english_log.txt"
-LLM_RESULTS_CSV = "/spaces/25G05/ZeroShot/llama4_zeroshot_results_20251004_003126.csv" 
+LOG_FILE = "/spaces/25G05/CODlist/evaluation_english_log.txt"
+LLM_RESULTS_CSV = "/spaces/25G05/CODlist/llama3_zeroshot_COD_results_20251008_203255.csv" 
 CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
 
 # Generate output filename with current date and time
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_EVAL_CSV = f"/spaces/25G05/ZeroShot/llama3_evaluation_english_{timestamp}.csv"
+OUTPUT_EVAL_CSV = f"/spaces/25G05/CODlist/llama3_8b_COD_evaluation_english_{timestamp}.csv"
 
 # ---------- HELPERS ----------
 ICD10_PATTERN = re.compile(r"[A-Z][0-9]{2}(?:\.[0-9])?")

@@ -9,9 +9,21 @@ We will provide, for each case:
 - A list of binary questions about medical history, lifestyle and symptoms, where:
   y = yes, n = no
 - A free-text narrative provided by a family member.
-- A list of ICD 10 codes paired with the cause of death in english to chose from. 
+- A fixed reference list of ICD-10 codes paired with their English descriptions. 
 
-Below is a list of ICD 10 codes paired with with the cause of death in plain english. For each case pick a cause of death from this list.
+IMPORTANT INSTRUCTION:
+You must choose the cause of death *only* from the ICD-10 list provided below.  
+You are *not allowed* to invent, guess, infer, or use any ICD-10 code or cause of death that is *not explicitly listed*.  
+If none of the listed causes fits the case information, output:
+- "ICD10": "R99"
+- "CAUSE_SHORT": "Other ill-defined and unspecified causes of mortality"
+and explain your uncertainty only through the confidence percentage.
+
+Each ICD-10 code in your response must:
+- Match one of the codes *exactly as written* in the list below (three characters, no decimal point).
+- Include the corresponding English cause name *exactly as listed*.
+
+Below is the full allowed ICD-10 code list with their English descriptions:
 
 - A09: Diarrhoea and gastroenteritis of presumed infectious origin  (A09)
 - NA: Not Applicable
@@ -248,12 +260,12 @@ Below is a list of ICD 10 codes paired with with the cause of death in plain eng
 - G91: Hydrocephalus
 - P78: Other perinatal digestive system disorders
 
-If the information is insufficient to determine a cause of death, explicitly state that in the output.
-
 Your task is to:
 1) Identify the single most likely cause of death.
 2) Provide the corresponding ICD-10 code. The code must be exactly three characters with no decimal point, e.g., `"A41"` not `"A41.9"`.
 3) Estimate your confidence level in your answer as a percentage. 
+
+If the information is insufficient to determine a cause of death, explicitly state that in the output.
 
 Return ONE JSON object with EXACTLY these keys:
 {
