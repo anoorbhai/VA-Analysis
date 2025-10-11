@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=llama4_va
-#SBATCH --output=logs/llama4_va_%j.out
-#SBATCH --error=logs/llama4_va_%j.err
+#SBATCH --job-name=deepseekR1_va
+#SBATCH --output=deepseekR1_va_%j.out
+#SBATCH --error=deepseekR1_va_%j.err
 #SBATCH --time=7-00:00:00
 #SBATCH --reservation=gpu
 #SBATCH --gres=gpu:1
@@ -11,4 +11,4 @@
 cd /home/noorbhaia/VA-Analysis
 
 # Run the Python script
-python Prompting/Llama4_ZeroShot_COD.py
+python Prompting/Deepseek_ZeroShot.py

@@ -208,6 +208,8 @@ marimo/_lsp/
 __marimo__/
 
 *.txt
+*.err
+*.out
 VA_merged_cases.csv
 *.err
 *.out
