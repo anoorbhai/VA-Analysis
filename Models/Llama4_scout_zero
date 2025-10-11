@@ -30,5 +30,4 @@ Do not add other keys or text.
 
 # Inference parameters
 PARAMETER temperature 0.2
-PARAMETER num_ctx 8192
 PARAMETER top_k 40
