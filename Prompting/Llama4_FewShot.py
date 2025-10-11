@@ -425,9 +425,9 @@ class LlamaVAProcessor:
                 model_names = [model.get('name', '') for model in models]
                 
                 if MODEL_NAME in model_names:
-                    logger.info(f"✓ Ollama is running and model '{MODEL_NAME}' is available")
+                    logger.info(f"Ollama is running and model '{MODEL_NAME}' is available")
                 else:
-                    logger.warning(f"⚠ Model '{MODEL_NAME}' not found. Available models: {model_names}")
+                    logger.warning(f"Model '{MODEL_NAME}' not found. Available models: {model_names}")
                     logger.warning(f"Please build the model from the Modelfile first:")
                     logger.warning(f"ollama create {MODEL_NAME} -f /home/seedatr/VA-Analysis/Models/Llama4_scout_Few")
             else:
