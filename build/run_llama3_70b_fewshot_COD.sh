@@ -11,4 +11,4 @@
 cd /home/seedatr/VA-Analysis
 
 # Run the Python script
-python Prompting/Llama3_70b_FewShot_COD.py
+python Prompting/FewShot/Llama3_70b_FewShot_COD.py
