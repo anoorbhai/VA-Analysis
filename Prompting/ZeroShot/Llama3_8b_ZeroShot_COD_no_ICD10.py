@@ -502,7 +502,7 @@ class LlamaVAProcessor:
         Query the Ollama LLM and parse the response
         
         Returns:
-            Tuple of (cause_short, icd10_code, confidence, execution_time)
+            Tuple of (cause_short, number, confidence, execution_time)
         """
         start_time = time.time()
         
@@ -529,10 +529,10 @@ class LlamaVAProcessor:
                 response_text = result.get('response', '')
                 
                 # Parse the structured response
-                cause_short, icd10_code, confidence = self.parse_llm_response(response_text)
+                cause_short, number, confidence = self.parse_llm_response(response_text)
                 
-                logger.debug(f"LLM response parsed: cause={cause_short}, icd10={icd10_code}, conf={confidence}")
-                return cause_short, icd10_code, confidence, execution_time
+                logger.debug(f"LLM response parsed: cause={cause_short}, icd10={number}, conf={confidence}")
+                return cause_short, number, confidence, execution_time
                 
             else:
                 logger.error(f"Ollama API error: {response.status_code} - {response.text}")
@@ -558,14 +558,14 @@ class LlamaVAProcessor:
         try:
             data = json.loads(response_text)
             cause_short = data.get("CAUSE_SHORT")
-            icd10_code = data.get("ICD10")
+            number = data.get("NUMBER")
             confidence = data.get("CONFIDENCE")
             if confidence is not None:
                 try:
                     confidence = int(confidence)
                 except ValueError:
                     confidence = None
-            return cause_short, icd10_code, confidence
+            return cause_short, number, confidence
         except Exception as e:
             logger.error(f"Error parsing LLM response: {e}")
             logger.debug(f"Response text: {response_text}")
@@ -603,13 +603,13 @@ class LlamaVAProcessor:
                 prompt = self.format_case_for_llm(row)
                 
                 # Query LLM
-                cause_short, icd10_code, confidence, execution_time = self.query_llm(prompt)
+                cause_short, number, confidence, execution_time = self.query_llm(prompt)
                 
                 # Store result
                 result = {
                     'id': individual_id,
                     'cause_of_death': cause_short or 'ERROR',
-                    'icd10_code': icd10_code or 'ERROR',
+                    'number': number or 'ERROR',
                     'confidence': confidence,
                     'time_taken_seconds': round(execution_time, 2),
                     'processed_at': datetime.now().isoformat()
@@ -628,7 +628,7 @@ class LlamaVAProcessor:
                 result = {
                     'id': individual_id,
                     'cause_of_death': 'PROCESSING_ERROR',
-                    'icd10_code': 'ERROR',
+                    'number': 'ERROR',
                     'confidence': None,
                     'time_taken_seconds': 0,
                     'processed_at': datetime.now().isoformat()
@@ -659,7 +659,7 @@ class LlamaVAProcessor:
             summary_row = {
                 'id': 'SUMMARY',
                 'cause_of_death': f'Success Rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)',
-                'icd10_code': 'SUMMARY',
+                'number': 'SUMMARY',
                 'confidence': None,
                 'time_taken_seconds': avg_time,
                 'processed_at': f'Total Processing Time: {total_processing_time:.2f}s'
