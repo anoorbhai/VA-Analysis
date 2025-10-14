@@ -266,7 +266,7 @@ If the information is insufficient to determine a cause of death, explicitly sta
 Return ONE JSON object with EXACTLY these keys:
 {
   "ID": "<the case id>",
-  "CAUSE_SHORT": "<short english wording for the ICD-10 code>",
+  "CAUSE_SHORT": "<short english wording>",
   "Number": "<the corresponding number>",
   "CONFIDENCE": "<percentage confidence>"
 }
