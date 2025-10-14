@@ -15,6 +15,11 @@ IMPORTANT INSTRUCTION:
 You must choose the cause of death only from the list provided below.  
 You are not allowed to invent, guess, infer, or use any cause of death that is not explicitly listed.
 
+If none of the listed causes fits the case information, output:
+- "CODE": "99.00"
+- "CAUSE_SHORT": "Cause of death unknown"
+and explain your uncertainty only through the confidence percentage.
+
 Each code in your response must:
 - Match one of the codes exactly as written in the list below (4 numbers, 1 decimal point with 2 digits on either side).
 - Include the corresponding English cause name exactly as listed. 
@@ -123,7 +128,7 @@ If the information is insufficient to determine a cause of death, explicitly sta
 Return ONE JSON object with EXACTLY these keys:
 {
   "ID": "<the case id>",
-  "CAUSE_SHORT": "<short english wording for the ICD-10 code>",
+  "CAUSE_SHORT": "<short english wording for the cause of death>",
   "CODE": "<code>",
   "CONFIDENCE": "<percentage confidence>"
 }
@@ -244,7 +249,7 @@ In the final days before death, did anyone use a telephone or cell phone to call
 Narrative: The deceased was passenger in a light vehicle, their car over take another car and it was hit by  a truck. The deceased was injured on the head and chest,  he died at the spot
 
 Response:
-icd_10,cause_of_death,confidence
+code,cause_of_death,confidence
 12.01,Road traffic accident,0.996953310682554
 """
 
