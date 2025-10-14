@@ -35,7 +35,8 @@ INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 OUTPUT_CSV_PATH = f"/spaces/25G05/FewShot/llama3_8b_fewshot_COD_no_results_{timestamp}.csv"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = ""
+MODEL_NAME = "Llama3_8b_Few_COD_no_ICD10:latest"
+
 # Fields to exclude as specified
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
 
