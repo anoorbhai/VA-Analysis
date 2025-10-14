@@ -4,7 +4,7 @@ Llama3 8b Zero-Shot with COD list Verbal Autopsy Analysis Script
 
 This script processes the VA dataset using Llama3 for cause of death prediction.
 It excludes cause/probability fields and uses the LLM to make predictions based on
-symptom data and narratives.
+symptom data and narraatives.
 """
 
 import pandas as pd
@@ -23,7 +23,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(f'llama3_70b_zeroshot_COD_{log_timestamp}.log'),
+        logging.FileHandler(f'llama3_8b_zeroshot_COD_{log_timestamp}.log'),
         logging.StreamHandler()
     ]
 )
@@ -33,9 +33,9 @@ logger = logging.getLogger(__name__)
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 # Generate timestamped output filename
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_CSV_PATH = f"/spaces/25G05/Aaliyah/ZeroShot/llama3_70b_zeroshot_COD_results_{timestamp}.csv"
+OUTPUT_CSV_PATH = f"/spaces/25G05/Aaliyah/ZeroShot/llama3_8b_zeroshot_COD_results_{timestamp}.csv"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3_70b_VA_COD:latest"
+MODEL_NAME = "llama3_8b_VA_COD:latest"
 # Fields to exclude as specified
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
 
