@@ -4,55 +4,54 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Find Case by ID</title>
-  <!-- Papa Parse for robust CSV parsing (handles quotes/commas/newlines) -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <style>
-    :root { --bg:#3134cf; --fg:#ffffff; --accent:#ffffff; }
+    :root { --bg:#3134cf; --fg:#ffffff; --accent:#ffffff; --muted:#cbd5e1; }
     body {
-        margin: 0; min-height: 100vh; display: grid; place-items: center;
-        background: radial-gradient(80vw 80vh at 50% 40%, #000000, var(--bg));
-        color: var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: radial-gradient(80vw 80vh at 50% 40%, #000000, var(--bg));
+      color: var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
     }
     .wrap { width: min(700px, 90vw); }
     header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
     header a { color: var(--muted); text-decoration: none; font-size: .95rem; }
     header a:hover { text-decoration: underline; }
     .panel {
-      background: #000;; border: 1px solid rgb(0, 0, 0);
+      background: #000; border: 1px solid #000;
       border-radius: 20px; padding: 1.25rem; box-shadow: 0 18px 45px rgba(133, 133, 216, 0.35);
     }
     h1 { margin: .25rem 0 1rem; font-size: clamp(1.4rem, 2.5vw, 2rem); }
     .grid { display: grid; gap: 1rem; grid-template-columns: 1fr auto; align-items: end; }
     label { font-size: .95rem; color: var(--muted); display: block; margin-bottom: .35rem; }
     input[type="text"] {
-      width: 50%; padding: .85rem 1rem; border-radius: 12px; border: 1px solid rgb(11, 0, 0);
-      background: #f6f6f7; color: #000000; outline: none;
+      width: 50%; padding: .85rem 1rem; border-radius: 12px; border: 1px solid #0b0000;
+      background: #f6f6f7; color: #000; outline: none;
     }
     .btn {
       padding: .9rem 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,.08);
-      background:#3134cf; color: #faf8f8; font-weight: 700;
-      cursor: pointer;
+      background:#3134cf; color: #faf8f8; font-weight: 700; cursor: pointer;
     }
     .meta { margin-top: .5rem; color: var(--muted); font-size: .9rem; }
-    .result {
-      margin-top: 1.25rem; padding: 1rem; border-radius: 16px; background: #06277c; border: 1px solid rgba(174, 17, 17, 0.06);
-    }
-    .narrative {
-      white-space: pre-wrap; line-height: 1.6; font-size: 1.02rem;
-    }
-    .notfound { color: #973f21; }
+    .result { margin-top: 1.25rem; padding: 1rem; border-radius: 16px; background: #06277c; border: 1px solid rgba(174, 17, 17, 0.06); }
+    .narrative { white-space: pre-wrap; line-height: 1.6; font-size: 1.02rem; }
+    .notfound { color: #fca5a5; }
     .ok { color: #86efac; }
     .small { font-size: .88rem; color: var(--muted); }
-    .row { display: flex; gap: .75rem; align-items: center; }
-    .pill { padding: .2rem .55rem; border-radius: 999px; background: rgba(34,211,238,.12); color: #000000; font-size: .78rem; border: 1px solid rgba(34,211,238,.3); }
-    footer { margin-top: 1rem; }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    .pill { padding: .2rem .55rem; border-radius: 999px; background: rgba(34,211,238,.12); color: #000; font-size: .78rem; border: 1px solid rgba(34,211,238,.3); }
+    footer { margin-top: 1rem; color: var(--muted); }
+    details { background:#0a1d5a; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:.75rem 1rem; }
+    details summary { cursor:pointer; font-weight:600; margin:-.25rem 0 .5rem; }
+    ul.qa { margin:.25rem 0 0 0; padding-left:1rem; }
+    ul.qa li { margin:.25rem 0; }
+    hr.sep { border:none; border-top:1px solid rgba(255,255,255,.12); margin:.75rem 0; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <a href="SplashScreen.html">← Back</a>
-      <span class="pill">CSV-backed</span>
+      <span class="pill">Hardcoded: 5 cases</span>
     </header>
 
     <section class="panel">
@@ -60,89 +59,309 @@
       <div class="grid">
         <div>
           <label for="caseId">Enter Case ID</label>
-          <input id="caseId" type="text" placeholder="e.g., SGHHR" />
-          <div class="meta small">Exact match on the <code>case_id</code> column (case-insensitive, trims spaces).</div>
+          <input id="caseId" type="text" placeholder="e.g., VA001" />
         </div>
         <div>
           <button class="btn" id="searchBtn">Find Narrative</button>
         </div>
       </div>
 
-      <div class="meta" id="status">Loading cases…</div>
+      <div class="meta" id="status">Loaded 5 Fake cases. Ready.</div>
 
       <div class="result" id="result" hidden>
         <div class="row">
           <strong>Case:</strong><span id="foundId"></span>
+          <span class="pill" id="codPill"></span>
         </div>
-        <hr style="border: none; border-top: 1px solid rgba(255,255,255,.08); margin: .75rem 0;" />
-        <div class="narrative" id="narrative"></div>
+        <hr class="sep" />
+
+        <details open>
+          <summary>Free-text narrative</summary>
+          <div class="narrative" id="narrative"></div>
+        </details>
+
+        <hr class="sep" />
+
+        <details>
+          <summary>Questionnaire (Yes/No)</summary>
+          <ul class="qa" id="qaList"></ul>
+        </details>
       </div>
     </section>
 
     <footer class="small">
-      Expected CSV columns: <code>case_id</code>, <code>narrative</code>. Extra columns are ignored.
+      Tip: press <kbd>Enter</kbd> after typing an ID to search.
     </footer>
   </div>
 
   <script>
-    // Holds rows keyed by normalized case_id
-    const CASES = new Map();
-
-    // Utility to normalize user input and CSV ids
+    // Normalize IDs
     const norm = s => (s || '').toString().trim().toLowerCase();
 
-    // Status helpers
+    // ----- Hardcoded cases (VA001–VA005) -----
+    const RAW_CASES = [
+      {
+        case_id: "VA001",
+        cause_of_death: "Pulmonary Tuberculosis",
+        narrative: `“He had been coughing for about two months and lost a lot of weight. He often woke up at night with drenching sweats and sometimes coughed up blood. We took him to the clinic and they diagnosed tuberculosis. He was also HIV positive and on treatment, but he would sometimes stop taking his pills. He started TB medication, but did not improve much. In the last week he became extremely weak and struggled to breathe. We rushed him to the hospital when he had difficulty breathing, but he died two days later.”`,
+        qa: [
+          ["Injury/accident led to death", "No"],
+          ["Road traffic accident", "No"],
+          ["Fall", "No"],
+          ["Drowning", "No"],
+          ["Poisoning", "No"],
+          ["Severe burns", "No"],
+          ["Violence/assault", "No"],
+          ["Injury intentionally inflicted by someone else", "No"],
+          ["Suspected suicide", "No"],
+          ["Animal/snake bite", "No"],
+          ["Lightning strike", "No"],
+          ["HIV positive", "Yes"],
+          ["Hypertension diagnosis", "No"],
+          ["Diabetes diagnosis", "No"],
+          ["Death sudden/unexpected", "No (prolonged illness)"],
+          ["Fever", "Yes"],
+          ["Fever only at night", "Yes"],
+          ["Chills", "Yes"],
+          ["Night sweats", "Yes"],
+          ["Cough", "Yes"],
+          ["Productive cough", "Yes"],
+          ["Coughed up blood", "Yes"],
+          ["Breathlessness", "Yes"],
+          ["Chest pain", "No"],
+          ["Vomiting", "No"],
+          ["Abdominal pain", "No"],
+          ["Headaches", "No"],
+          ["Unconsciousness", "No"],
+          ["Paralysis one side", "No"],
+          ["Slurred speech", "No"],
+          ["Weight loss", "Yes"],
+          ["Looked pale/anemic", "No"],
+          ["Received treatment", "Yes (TB treatment)"],
+          ["Operation for illness", "No"],
+          ["Doctor told cause", "Yes"],
+          ["Alcohol use", "Yes"],
+          ["Smoked/tobacco", "Yes"],
+          ["Other drugs", "No"],
+          ["Indoor smoke exposure", "Yes"]
+        ]
+      },
+      {
+        case_id: "VA002",
+        cause_of_death: "Assault (Stab Wounds)",
+        narrative: `“He was completely healthy before that night. He went out to a local tavern with friends and got into a fight. He was stabbed multiple times in the chest. Neighbors found him bleeding and rushed him to the hospital. The doctors operated due to heavy internal bleeding. He was unconscious by the time we arrived at the hospital. They tried to save him, but he died later that night from his injuries.”`,
+        qa: [
+          ["Injury/accident led to death", "Yes"],
+          ["Road traffic accident", "No"],
+          ["Fall", "No"],
+          ["Drowning", "No"],
+          ["Poisoning", "No"],
+          ["Severe burns", "No"],
+          ["Violence/assault", "Yes"],
+          ["Injury intentionally inflicted by someone else", "Yes"],
+          ["Suspected suicide", "No"],
+          ["Animal/snake bite", "No"],
+          ["Lightning strike", "No"],
+          ["HIV positive", "No"],
+          ["Hypertension diagnosis", "No"],
+          ["Diabetes diagnosis", "No"],
+          ["Death sudden/unexpected", "Yes"],
+          ["Fever", "No"],
+          ["Night sweats", "No"],
+          ["Cough", "No"],
+          ["Productive cough", "No"],
+          ["Coughed up blood", "No"],
+          ["Breathlessness", "No (pre-injury)"],
+          ["Chest pain", "No (aside from injury)"],
+          ["Vomiting", "No"],
+          ["Abdominal pain", "No (aside from injury)"],
+          ["Headaches", "No"],
+          ["Unconsciousness", "Yes"],
+          ["Paralysis one side", "No"],
+          ["Slurred speech", "No"],
+          ["Weight loss", "No"],
+          ["Looked pale/anemic", "No (except acute blood loss)"],
+          ["Received treatment for injury", "Yes"],
+          ["Operation for injuries", "Yes"],
+          ["Doctor told cause", "Yes"],
+          ["Alcohol use", "Yes"],
+          ["Smoked/tobacco", "Yes"],
+          ["Other drugs", "No"],
+          ["Indoor smoke exposure", "No"]
+        ]
+      },
+      {
+        case_id: "VA003",
+        cause_of_death: "Stroke (Cerebrovascular Accident)",
+        narrative: `“My mother had a history of high blood pressure and diabetes. One afternoon she suddenly developed a very severe headache and collapsed. She could not move her right side or speak after she fell. She quickly lost consciousness. We called an ambulance and she was taken to the hospital. The doctors said she had a stroke (a brain hemorrhage). She never woke up again and passed away two days later.”`,
+        qa: [
+          ["Injury/accident led to death", "No"],
+          ["Road traffic accident", "No"],
+          ["Fall", "No"],
+          ["Drowning", "No"],
+          ["Poisoning", "No"],
+          ["Severe burns", "No"],
+          ["Violence/assault", "No"],
+          ["Injury intentionally inflicted by someone else", "No"],
+          ["Suspected suicide", "No"],
+          ["Animal/snake bite", "No"],
+          ["Lightning strike", "No"],
+          ["HIV positive", "No"],
+          ["Hypertension diagnosis", "Yes"],
+          ["Diabetes diagnosis", "Yes"],
+          ["Death sudden/unexpected", "Yes"],
+          ["Fever", "No"],
+          ["Night sweats", "No"],
+          ["Cough", "No"],
+          ["Productive cough", "No"],
+          ["Coughed up blood", "No"],
+          ["Breathlessness", "No"],
+          ["Chest pain", "No"],
+          ["Vomiting", "Yes"],
+          ["Abdominal pain", "No"],
+          ["Headaches", "Yes"],
+          ["Unconsciousness", "Yes"],
+          ["Paralysis one side", "Yes"],
+          ["Slurred speech", "Yes"],
+          ["Weight loss", "No"],
+          ["Looked pale/anemic", "No"],
+          ["Received treatment", "Yes"],
+          ["Operation for illness", "No"],
+          ["Doctor told cause", "Yes"],
+          ["Alcohol use", "No"],
+          ["Smoked/tobacco", "No"],
+          ["Other drugs", "No"],
+          ["Indoor smoke exposure", "Yes"]
+        ]
+      },
+      {
+        case_id: "VA004",
+        cause_of_death: "Cervical Cancer",
+        narrative: `“My wife had been ill for about six months. She had very heavy menstrual bleeding and would also bleed between periods. She noticed a foul-smelling discharge as well. We thought it might be menopause at first, but her bleeding and lower abdominal pain kept getting worse. She began losing weight and growing weaker. After a few months, we went to the hospital and she was diagnosed with advanced cervical cancer. They gave her some treatment and blood transfusions, but she continued to decline. In the last weeks she was mostly bedridden, very pale, and in a lot of pain. She passed away at home while we were caring for her.”`,
+        qa: [
+          ["Injury/accident led to death", "No"],
+          ["Road traffic accident", "No"],
+          ["Fall", "No"],
+          ["Drowning", "No"],
+          ["Poisoning", "No"],
+          ["Severe burns", "No"],
+          ["Violence/assault", "No"],
+          ["Injury intentionally inflicted by someone else", "No"],
+          ["Suspected suicide", "No"],
+          ["Animal/snake bite", "No"],
+          ["Lightning strike", "No"],
+          ["Heavy menstrual bleeding", "Yes"],
+          ["Bleeding between periods", "Yes"],
+          ["Abnormal vaginal discharge", "Yes"],
+          ["Post-menopausal bleeding", "No (not menopausal)"],
+          ["Pregnant at time of death", "No"],
+          ["HIV positive", "No"],
+          ["Hypertension diagnosis", "No"],
+          ["Diabetes diagnosis", "No"],
+          ["Death sudden/unexpected", "No (gradual illness)"],
+          ["Fever", "No"],
+          ["Night sweats", "No"],
+          ["Cough", "No"],
+          ["Productive cough", "No"],
+          ["Coughed up blood", "No"],
+          ["Breathlessness", "No"],
+          ["Chest pain", "No"],
+          ["Vomiting", "No"],
+          ["Abdominal/pelvic pain", "Yes (persistent)"],
+          ["Headaches", "No"],
+          ["Unconsciousness", "No"],
+          ["Paralysis one side", "No"],
+          ["Slurred speech", "No"],
+          ["Weight loss", "Yes"],
+          ["Looked pale/anemic", "Yes"],
+          ["Received treatment", "Yes"],
+          ["Operation for illness", "No"],
+          ["Doctor told cause", "Yes"],
+          ["Alcohol use", "No"],
+          ["Smoked/tobacco", "No"],
+          ["Other drugs", "No"],
+          ["Indoor smoke exposure", "Yes"]
+        ]
+      },
+      {
+        case_id: "VA005",
+        cause_of_death: "Road Traffic Accident",
+        narrative: `“My son was perfectly healthy before the accident. He was driving home on the highway when his car was involved in a terrible collision. We were told that his car hit another vehicle at high speed on the N1 road. He was found unconscious and badly injured. An ambulance took him to the hospital where they performed emergency surgery to stop internal bleeding. He never woke up after the crash. He died later that night from his injuries. It was a sudden, shocking loss for us.”`,
+        qa: [
+          ["Injury/accident led to death", "Yes"],
+          ["Road traffic accident", "Yes"],
+          ["Fall", "No"],
+          ["Drowning", "No"],
+          ["Poisoning", "No"],
+          ["Severe burns", "No"],
+          ["Violence/assault", "No"],
+          ["Injury intentionally inflicted by someone else", "No"],
+          ["Suspected suicide", "No"],
+          ["Animal/snake bite", "No"],
+          ["Lightning strike", "No"],
+          ["HIV positive", "No"],
+          ["Hypertension diagnosis", "No"],
+          ["Diabetes diagnosis", "No"],
+          ["Death sudden/unexpected", "Yes"],
+          ["Fever", "No"],
+          ["Night sweats", "No"],
+          ["Cough", "No"],
+          ["Productive cough", "No"],
+          ["Coughed up blood", "No"],
+          ["Breathlessness", "No (aside from injuries)"],
+          ["Chest pain", "No (aside from injury)"],
+          ["Vomiting", "No"],
+          ["Abdominal pain", "No (aside from injury)"],
+          ["Headaches", "No"],
+          ["Unconsciousness", "Yes"],
+          ["Paralysis one side", "No"],
+          ["Slurred speech", "No"],
+          ["Weight loss", "No"],
+          ["Looked pale/anemic", "No (except acute blood loss)"],
+          ["Received treatment for injuries", "Yes"],
+          ["Operation for injuries", "Yes"],
+          ["Doctor told cause", "Yes"],
+          ["Alcohol use", "No"],
+          ["Smoked/tobacco", "No"],
+          ["Other drugs", "No"],
+          ["Indoor smoke exposure", "No"]
+        ]
+      }
+    ];
+
+    // Build a Map keyed by normalized ID
+    const CASES = new Map(RAW_CASES.map(c => [norm(c.case_id), c]));
+
+    // UI handles
     const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+    const foundIdEl = document.getElementById('foundId');
+    const codPillEl = document.getElementById('codPill');
+    const narrativeEl = document.getElementById('narrative');
+    const qaListEl = document.getElementById('qaList');
+
     const setStatus = (msg, ok=false) => {
       statusEl.textContent = msg;
       statusEl.className = 'meta ' + (ok ? 'ok' : '');
     };
 
-    // Load CSV on page load
-    function loadCsv() {
-      Papa.parse('verbal_autopsy_cases.csv', {
-        header: true,
-        download: true,
-        skipEmptyLines: true,
-        complete: (res) => {
-          if (res.errors && res.errors.length) {
-            console.warn('CSV parse errors:', res.errors);
-          }
-          const rows = res.data || [];
-          let added = 0;
-          for (const row of rows) {
-            const id = norm(row.case_id);
-            if (!id) continue;
-            CASES.set(id, row);
-            added++;
-          }
-          if (added === 0) {
-            setStatus('No cases found in CSV. Check headers "case_id" and "narrative".');
-          } else {
-            setStatus(`Loaded ${added} case${added===1?'':'s'}. Ready.`, true);
-          }
+    function renderCase(c) {
+      foundIdEl.textContent = c.case_id;
+      codPillEl.textContent = c.cause_of_death;
+      narrativeEl.textContent = c.narrative;
 
-          // If there's a caseId in the URL (?id=VA-001), auto-fill & search
-          const params = new URLSearchParams(window.location.search);
-          const q = params.get('id');
-          if (q) {
-            document.getElementById('caseId').value = q;
-            findCase();
-          }
-        },
-        error: (err) => {
-          console.error(err);
-          setStatus('Failed to load CSV. Make sure it is named "verbal_autopsy_cases.csv" and sits next to this file.');
-        }
-      });
+      // Render Q&A list
+      qaListEl.innerHTML = '';
+      for (const [q, a] of c.qa) {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${q}:</strong> ${a}`;
+        qaListEl.appendChild(li);
+      }
     }
 
-    async function findCase() {
+    function findCase() {
       const input = document.getElementById('caseId');
       const id = norm(input.value);
-      const resultEl = document.getElementById('result');
-      const narrativeEl = document.getElementById('narrative');
-      const foundIdEl = document.getElementById('foundId');
 
       if (!id) {
         setStatus('Please enter a Case ID.');
@@ -150,16 +369,14 @@
         return;
       }
 
-      const row = CASES.get(id);
-      if (!row) {
-        setStatus(`No case found for ID "${input.value}".`, false);
+      const c = CASES.get(id);
+      if (!c) {
+        setStatus(`No case found for ID "${input.value}". Try VA001–VA005.`, false);
         resultEl.hidden = true;
         return;
       }
 
-      const narrative = row.narrative || '(No narrative provided)';
-      foundIdEl.textContent = row.case_id ?? input.value;
-      narrativeEl.textContent = narrative; // preserved as plain text; newlines kept via CSS
+      renderCase(c);
       resultEl.hidden = false;
       setStatus('Result shown below.', true);
     }
@@ -169,8 +386,15 @@
       if (e.key === 'Enter') findCase();
     });
 
-    // Kick off CSV loading
-    loadCsv();
+    // Optional: auto-show if URL has ?id=VA004
+    (function maybePrefillFromQuery(){
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('id');
+      if (q) {
+        document.getElementById('caseId').value = q;
+        findCase();
+      }
+    })();
   </script>
 </body>
 </html>
