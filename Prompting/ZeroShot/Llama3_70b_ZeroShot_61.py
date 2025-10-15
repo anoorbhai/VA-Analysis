@@ -648,9 +648,7 @@ class LlamaVAProcessor:
     def save_final_results(self, results: List[Dict], total_processing_time: float):
         """Save final results to CSV"""
         try:
-            df_results = pd.DataFrame(results)
-            
-            # Calculate summary statistics
+            # Calculate summary statistics first
             successful_cases = len([r for r in results if r['cause_of_death'] not in ['ERROR', 'PROCESSING_ERROR']])
             avg_time = sum([r['time_taken_seconds'] for r in results]) / len(results) if results else 0
             
@@ -664,9 +662,16 @@ class LlamaVAProcessor:
                 'processed_at': f'Total Processing Time: {total_processing_time:.2f}s'
             }
             
-            # Append summary row to results
-            df_results = pd.concat([df_results, pd.DataFrame([summary_row])], ignore_index=True)
-            
+            # Create DataFrame from results and append summary row
+            if results:
+                # If we have results, create DataFrame and append summary
+                df_results = pd.DataFrame(results)
+                df_summary = pd.DataFrame([summary_row])
+                df_results = pd.concat([df_results, df_summary], ignore_index=True)
+            else:
+                # If no results, just create DataFrame with summary row
+                df_results = pd.DataFrame([summary_row])
+        
             # Ensure the output directory exists
             output_dir = Path(OUTPUT_CSV_PATH).parent
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -676,7 +681,8 @@ class LlamaVAProcessor:
             
             logger.info(f"Final results saved to {OUTPUT_CSV_PATH}")
             logger.info(f"Processed {len(results)} cases total")
-            logger.info(f"Success rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)")
+            if results:
+                logger.info(f"Success rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)")
             logger.info(f"Average processing time: {avg_time:.2f} seconds per case")
             logger.info(f"Total processing time: {total_processing_time:.2f} seconds")
             
@@ -703,7 +709,7 @@ def main():
         df_filtered = df[df['individual_id'].astype(str).isin(valid_ids)]
         
         # For testing, you can limit the number of cases
-        max_cases = 5  # Process all cases
+        max_cases = 1000  # Process all cases
         
         # Process cases through LLM
         logger.info("Starting LLM processing...")
