@@ -20,7 +20,7 @@ OUTPUT_EVAL_CSV = f"/spaces/25G05/61COD/llama3_8b_few_61_evaluation_{timestamp}.
 
 # Filtering toggles
 REMOVE_MISSING_SCHEME = True     # drop if LLM CODE is missing
-REMOVE_UNKNOWN_CODE99 = False    # drop if LLM CODE == 99.00 (unknown)
+REMOVE_UNKNOWN_CODE99 = True    # drop if LLM CODE == 99.00 (unknown)
 
 # ---------- PATTERNS & HELPERS ----------
 SCHEME_CODE_RE = re.compile(r"^\d{2}\.\d{2}$")  # e.g., 04.02
@@ -53,6 +53,16 @@ def icd10_root(text: Optional[str]) -> Optional[str]:
 
 # ---------- LOAD ----------
 llm_df = pd.read_csv(LLM_RESULTS_CSV)
+
+llm_df = pd.read_csv(LLM_RESULTS_CSV)
+
+# Rename columns to match expected format
+llm_df = llm_df.rename(columns={
+    "cause_of_death": "CAUSE_SHORT",   # English description of COD
+    "code": "CODE",                    # The numeric 61-code
+    "confidence": "CONFIDENCE"         # Confidence percentage (if present)
+})
+
 clin_df = pd.read_csv(CLINICIAN_CSV)
 map_df  = pd.read_csv(MAPPING_CSV)
 
