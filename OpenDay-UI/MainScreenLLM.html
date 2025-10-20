@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Find Case by ID — LLM</title>
+
+  <style>
+    :root { --bg:#3134cf; --fg:#ffffff; --accent:#ffffff; --muted:#cbd5e1; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: radial-gradient(80vw 80vh at 50% 40%, #000000, var(--bg));
+      color: var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+    }
+    .wrap { width: min(1000px, 90vw); }
+    header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+    header a { color: var(--muted); text-decoration: none; font-size: .95rem; }
+    header a:hover { text-decoration: underline; }
+    .panel {
+      background: #000; border: 1px solid #000;
+      border-radius: 20px; padding: 1.25rem; box-shadow: 0 18px 45px rgba(133, 133, 216, 0.35);
+    }
+    h1 { margin: .25rem 0 1rem; font-size: clamp(1.4rem, 2.5vw, 2rem); }
+    .grid { display: grid; gap: 1rem; grid-template-columns: 1fr auto; align-items: end; }
+    label { font-size: .95rem; color: var(--muted); display: block; margin-bottom: .35rem; }
+    input[type="text"] {
+      width: 50%; padding: .85rem 1rem; border-radius: 12px; border: 1px solid #0b0000;
+      background: #f6f6f7; color: #000; outline: none;
+    }
+    .btn {
+      padding: .9rem 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,.08);
+      background:#3134cf; color: #faf8f8; font-weight: 700; cursor: pointer;
+    }
+    .meta { margin-top: .5rem; color: var(--muted); font-size: .9rem; }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    .pill { padding: .2rem .55rem; border-radius: 999px; background: rgba(34,211,238,.12); color: #000; font-size: .78rem; border: 1px solid rgba(34,211,238,.3); }
+    hr.sep { border:none; border-top:1px solid rgba(255,255,255,.12); margin:.75rem 0; }
+
+    /* LLM block */
+    .llm {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 14px;
+      background: #0b1440;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .llm-status { color: #c7d2fe; font-style: italic; }
+    .llm-output { margin-top: .5rem; white-space: pre-wrap; line-height: 1.6; }
+    .cod { margin-top: .75rem; padding:.6rem .8rem; border-radius: 10px; background:#061d5a; border:1px solid rgba(255,255,255,.08); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a href="SplashScreenLLM.html">← Back</a>
+      <span class="pill">LLM output only</span>
+    </header>
+
+    <section class="panel">
+      <h1>Look up a Case by ID</h1>
+      <div class="grid">
+        <div>
+          <label for="caseId">Enter Case ID</label>
+          <input id="caseId" type="text" placeholder="e.g., VA001" />
+          <div class="meta small">IDs: VA001–VA005</div>
+        </div>
+        <div>
+          <button class="btn" id="searchBtn">Find Narrative</button>
+        </div>
+      </div>
+
+      <div class="meta" id="status">Loaded 5 cases. Ready.</div>
+
+      <div id="caseHeader" class="row" style="margin-top:.75rem;" hidden>
+        <strong>Case:</strong><span id="foundId"></span>
+      </div>
+      <hr class="sep" id="caseSep" hidden/>
+
+      <!-- LLM Simulation -->
+      <div class="llm" id="llmBlock" hidden>
+        <div class="llm-status" id="llmStatus">LLM is thinking<span id="dots">.</span></div>
+        <div class="llm-output" id="llmOutput"></div>
+        <div class="cod" id="llmCOD" hidden></div>
+      </div>
+    </section>
+
+    <footer class="small">
+      Tip: press <kbd>Enter</kbd> after typing an ID to search.
+    </footer>
+  </div>
+
+  <script>
+    const norm = s => (s || '').toString().trim().toLowerCase();
+
+    // Hardcoded LLM outputs per your spec
+    const LLM_ANSWERS = {
+      va001: {
+        analysis: "The decedent had a prolonged cough with sputum, weight loss, night sweats, and coughing up blood—all hallmark symptoms of pulmonary tuberculosis. He was HIV positive, which is a major risk factor for TB progression. The symptoms and medical history strongly support TB as the cause of death.",
+        cod: "Cause of Death: Pulmonary Tuberculosis (ICD-10: A15.0)"
+      },
+      va002: {
+        analysis: "The individual sustained multiple stab wounds in a violent assault, leading to internal bleeding, unconsciousness, and death shortly after. The cause of death was clearly traumatic injury from interpersonal violence. No prior illness or contributing condition was reported.",
+        cod: "Cause of Death: Assault by Sharp Object (ICD-10: X99)"
+      },
+      va003: {
+        analysis: "The woman experienced sudden onset of paralysis, slurred speech, loss of consciousness, and had a history of hypertension and diabetes—strong risk factors for stroke. The presentation is consistent with an acute cerebrovascular event, likely hemorrhagic stroke.",
+        cod: "Cause of Death: Stroke, Not Specified as Hemorrhage or Infarction (ICD-10: I64)"
+      },
+      va004: {
+        analysis: "She had heavy vaginal bleeding, intermenstrual bleeding, abnormal discharge, and progressive weight loss. These symptoms are classic for advanced cervical cancer. The diagnosis was confirmed by health professionals, and her symptoms and progression are consistent with this condition.",
+        cod: "Cause of Death: Cervical Cancer (ICD-10: C53.9)"
+      },
+      va005: {
+        analysis: "The man was in a high-speed motor vehicle accident and died shortly after from trauma despite emergency surgery. There was no prior illness, and the death was immediate and directly related to external injuries. This supports an accidental road traffic death.",
+        cod: "Cause of Death: Road Traffic Accident, Unspecified (ICD-10: V89.2)"
+      }
+    };
+
+    // UI handles
+    const statusEl  = document.getElementById('status');
+    const caseHdr   = document.getElementById('caseHeader');
+    const caseSep   = document.getElementById('caseSep');
+    const foundIdEl = document.getElementById('foundId');
+
+    const llmBlock  = document.getElementById('llmBlock');
+    const llmStatus = document.getElementById('llmStatus');
+    const dotsEl    = document.getElementById('dots');
+    const llmOutput = document.getElementById('llmOutput');
+    const llmCOD    = document.getElementById('llmCOD');
+
+    let thinkTimer = null, dotTimer = null, typeTimer = null;
+
+    const setStatus = (msg, ok=false) => {
+      statusEl.textContent = msg;
+      statusEl.className = 'meta ' + (ok ? 'ok' : '');
+    };
+
+    function clearLLM() {
+      llmOutput.textContent = '';
+      llmCOD.textContent = '';
+      llmCOD.hidden = true;
+      llmStatus.textContent = 'LLM is thinking';
+      llmStatus.appendChild(dotsEl);
+      dotsEl.textContent = '.';
+      if (thinkTimer) clearTimeout(thinkTimer);
+      if (dotTimer) clearInterval(dotTimer);
+      if (typeTimer) clearInterval(typeTimer);
+    }
+
+    function startThinking() {
+      llmBlock.hidden = false;
+      clearLLM();
+      const frames = ['.', '..', '...'];
+      let i = 0;
+      dotTimer = setInterval(() => {
+        dotsEl.textContent = frames[i++ % frames.length];
+      }, 400);
+    }
+
+    // simple typewriter
+    function typewriter(el, text, cps = 45, done) {
+      el.textContent = '';
+      let i = 0;
+      typeTimer = setInterval(() => {
+        el.textContent += text.charAt(i++);
+        if (i >= text.length) {
+          clearInterval(typeTimer);
+          if (done) done();
+        }
+      }, Math.max(10, 1000 / cps));
+    }
+
+    function runLLMSimFor(idNorm) {
+      const item = LLM_ANSWERS[idNorm];
+      if (!item) {
+        llmBlock.hidden = true;
+        return;
+      }
+      startThinking();
+
+      // After ~4 seconds, stop "thinking" and stream output
+      thinkTimer = setTimeout(() => {
+        clearInterval(dotTimer);
+        llmStatus.textContent = 'LLM analysis:';
+        typewriter(llmOutput, item.analysis, 48, () => {
+          setTimeout(() => {
+            llmCOD.hidden = false;
+            typewriter(llmCOD, item.cod, 55);
+          }, 400);
+        });
+      }, 4000);
+    }
+
+    function findCase() {
+      const input = document.getElementById('caseId');
+      const id = norm(input.value);
+
+      if (!id) {
+        setStatus('Please enter a Case ID.');
+        caseHdr.hidden = true; caseSep.hidden = true;
+        llmBlock.hidden = true;
+        return;
+      }
+
+      const has = !!LLM_ANSWERS[id];
+      if (!has) {
+        setStatus(`No case found for ID "${input.value}". Try VA001–VA005.`, false);
+        caseHdr.hidden = true; caseSep.hidden = true;
+        llmBlock.hidden = true;
+        return;
+      }
+
+      // show selected case header
+      foundIdEl.textContent = input.value.trim().toUpperCase();
+      caseHdr.hidden = false; caseSep.hidden = false;
+
+      setStatus('Running LLM simulation…', true);
+      runLLMSimFor(id);
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', findCase);
+    document.getElementById('caseId').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') findCase();
+    });
+  </script>
+</body>
+</html>
