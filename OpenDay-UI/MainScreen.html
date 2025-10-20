@@ -34,17 +34,13 @@
     .meta { margin-top: .5rem; color: var(--muted); font-size: .9rem; }
     .result { margin-top: 1.25rem; padding: 1rem; border-radius: 16px; background: #06277c; border: 1px solid rgba(174, 17, 17, 0.06); }
     .narrative { white-space: pre-wrap; line-height: 1.6; font-size: 1.02rem; }
-    .notfound { color: #fca5a5; }
-    .ok { color: #86efac; }
-    .small { font-size: .88rem; color: var(--muted); }
     .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
     .pill { padding: .2rem .55rem; border-radius: 999px; background: rgba(34,211,238,.12); color: #000; font-size: .78rem; border: 1px solid rgba(34,211,238,.3); }
-    footer { margin-top: 1rem; color: var(--muted); }
+    hr.sep { border:none; border-top:1px solid rgba(255,255,255,.12); margin:.75rem 0; }
     details { background:#0a1d5a; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:.75rem 1rem; }
     details summary { cursor:pointer; font-weight:600; margin:-.25rem 0 .5rem; }
     ul.qa { margin:.25rem 0 0 0; padding-left:1rem; }
     ul.qa li { margin:.25rem 0; }
-    hr.sep { border:none; border-top:1px solid rgba(255,255,255,.12); margin:.75rem 0; }
   </style>
 </head>
 <body>
@@ -60,9 +56,11 @@
         <div>
           <label for="caseId">Enter Case ID</label>
           <input id="caseId" type="text" placeholder="e.g., VA001" />
+          <div class="meta small">IDs: VA001–VA005</div>
         </div>
         <div>
           <button class="btn" id="searchBtn">Find Narrative</button>
+          <button class="btn" id="viewLLM" style="margin-left:.5rem;">View LLM Answer</button>
         </div>
       </div>
 
@@ -82,7 +80,7 @@
 
         <hr class="sep" />
 
-        <details>
+        <details open>
           <summary>Questionnaire (Yes/No)</summary>
           <ul class="qa" id="qaList"></ul>
         </details>
@@ -90,15 +88,13 @@
     </section>
 
     <footer class="small">
-      Tip: press <kbd>Enter</kbd> after typing an ID to search.
+      Tip: press <kbd>Enter</kbd> after typing an ID to search. Then click <b>View LLM Answer</b>.
     </footer>
   </div>
 
   <script>
-    // Normalize IDs
     const norm = s => (s || '').toString().trim().toLowerCase();
 
-    // ----- Hardcoded cases (VA001–VA005) -----
     const RAW_CASES = [
       {
         case_id: "VA001",
@@ -329,16 +325,14 @@
       }
     ];
 
-    // Build a Map keyed by normalized ID
     const CASES = new Map(RAW_CASES.map(c => [norm(c.case_id), c]));
 
-    // UI handles
-    const statusEl = document.getElementById('status');
-    const resultEl = document.getElementById('result');
-    const foundIdEl = document.getElementById('foundId');
-    const codPillEl = document.getElementById('codPill');
-    const narrativeEl = document.getElementById('narrative');
-    const qaListEl = document.getElementById('qaList');
+    const statusEl   = document.getElementById('status');
+    const resultEl   = document.getElementById('result');
+    const foundIdEl  = document.getElementById('foundId');
+    const codPillEl  = document.getElementById('codPill');
+    const narrativeEl= document.getElementById('narrative');
+    const qaListEl   = document.getElementById('qaList');
 
     const setStatus = (msg, ok=false) => {
       statusEl.textContent = msg;
@@ -350,7 +344,6 @@
       codPillEl.textContent = c.cause_of_death;
       narrativeEl.textContent = c.narrative;
 
-      // Render Q&A list
       qaListEl.innerHTML = '';
       for (const [q, a] of c.qa) {
         const li = document.createElement('li');
@@ -378,13 +371,23 @@
 
       renderCase(c);
       resultEl.hidden = false;
-      setStatus('Result shown below.', true);
+      setStatus('Narrative & full questionnaire shown below.', true);
+    }
+
+    function goToLLM() {
+      const raw = (document.getElementById('caseId').value || '').trim();
+      if (!raw) {
+        setStatus('Enter a Case ID first to view the LLM screen.');
+        return;
+      }
+      const idUpper = raw.toUpperCase();
+      sessionStorage.setItem('lastCaseId', idUpper);
+      window.location.href = `LLMScreen.html?id=${encodeURIComponent(idUpper)}`;
     }
 
     document.getElementById('searchBtn').addEventListener('click', findCase);
-    document.getElementById('caseId').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') findCase();
-    });
+    document.getElementById('caseId').addEventListener('keydown', (e) => { if (e.key === 'Enter') findCase(); });
+    document.getElementById('viewLLM').addEventListener('click', goToLLM);
   </script>
 </body>
 </html>
