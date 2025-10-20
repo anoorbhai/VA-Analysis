@@ -36,7 +36,6 @@
     .pill { padding: .2rem .55rem; border-radius: 999px; background: rgba(34,211,238,.12); color: #000; font-size: .78rem; border: 1px solid rgba(34,211,238,.3); }
     hr.sep { border:none; border-top:1px solid rgba(255,255,255,.12); margin:.75rem 0; }
 
-    /* LLM block */
     .llm {
       margin-top: 1rem;
       padding: 1rem;
@@ -52,7 +51,7 @@
 <body>
   <div class="wrap">
     <header>
-      <a href="SplashScreenLLM.html">← Back</a>
+      <a href="MainScreen.html">← Back</a>
       <span class="pill">LLM output only</span>
     </header>
 
@@ -65,7 +64,7 @@
           <div class="meta small">IDs: VA001–VA005</div>
         </div>
         <div>
-          <button class="btn" id="searchBtn">Find Narrative</button>
+          <button class="btn" id="searchBtn">View LLM Answer</button>
         </div>
       </div>
 
@@ -76,7 +75,6 @@
       </div>
       <hr class="sep" id="caseSep" hidden/>
 
-      <!-- LLM Simulation -->
       <div class="llm" id="llmBlock" hidden>
         <div class="llm-status" id="llmStatus">LLM is thinking<span id="dots">.</span></div>
         <div class="llm-output" id="llmOutput"></div>
@@ -85,14 +83,13 @@
     </section>
 
     <footer class="small">
-      Tip: press <kbd>Enter</kbd> after typing an ID to search.
+      Tip: paste a Case ID or arrive via <code>LLMScreen.html?id=VA00X</code>.
     </footer>
   </div>
 
   <script>
     const norm = s => (s || '').toString().trim().toLowerCase();
 
-    // Hardcoded LLM outputs per your spec
     const LLM_ANSWERS = {
       va001: {
         analysis: "The decedent had a prolonged cough with sputum, weight loss, night sweats, and coughing up blood—all hallmark symptoms of pulmonary tuberculosis. He was HIV positive, which is a major risk factor for TB progression. The symptoms and medical history strongly support TB as the cause of death.",
@@ -116,7 +113,6 @@
       }
     };
 
-    // UI handles
     const statusEl  = document.getElementById('status');
     const caseHdr   = document.getElementById('caseHeader');
     const caseSep   = document.getElementById('caseSep');
@@ -157,7 +153,6 @@
       }, 400);
     }
 
-    // simple typewriter
     function typewriter(el, text, cps = 45, done) {
       el.textContent = '';
       let i = 0;
@@ -178,7 +173,6 @@
       }
       startThinking();
 
-      // After ~4 seconds, stop "thinking" and stream output
       thinkTimer = setTimeout(() => {
         clearInterval(dotTimer);
         llmStatus.textContent = 'LLM analysis:';
@@ -209,8 +203,6 @@
         llmBlock.hidden = true;
         return;
       }
-
-      // show selected case header
       foundIdEl.textContent = input.value.trim().toUpperCase();
       caseHdr.hidden = false; caseSep.hidden = false;
 
@@ -222,6 +214,23 @@
     document.getElementById('caseId').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') findCase();
     });
+
+    // Auto-detect Case ID 
+    (function autoRunFromParamsOrSession(){
+      const params = new URLSearchParams(window.location.search);
+      let id = params.get('id');
+
+      if (!id) id = sessionStorage.getItem('lastCaseId');
+
+      if (id) {
+        const input = document.getElementById('caseId');
+        input.value = id;
+        const e = new KeyboardEvent('keydown', { key: 'Enter' });
+        input.dispatchEvent(e);
+      } else {
+        setStatus('Enter a Case ID (e.g., VA001) to view the LLM answer.');
+      }
+    })();
   </script>
 </body>
 </html>
