@@ -703,7 +703,7 @@ def main():
         df_filtered = df[df['individual_id'].astype(str).isin(valid_ids)]
         
         # For testing, you can limit the number of cases
-        max_cases = 5  # Process all cases
+        max_cases = 1000  # Process all cases
         
         # Process cases through LLM
         logger.info("Starting LLM processing...")
