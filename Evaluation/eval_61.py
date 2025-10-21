@@ -67,13 +67,13 @@ LLM_RESULTS_CSV = "/spaces/25G05/FewShot/llama3_8b_fewshot_61_results_20251015_1
 CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
 MAPPING_CSV     = "/spaces/25G05/61COD/clinician_to_scheme_mapping.csv"
 
-LOG_FILE = "/spaces/25G05/61COD/evaluation_log.txt"
+LOG_FILE = "/spaces/25G05/Aaliyah/evaluation_log.txt"
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_EVAL_CSV = f"/spaces/25G05/61COD/llama3_8b_few_61_evaluation_{timestamp}.csv"
+OUTPUT_EVAL_CSV = f"/spaces/25G05/Aaliyah/Evaluation/llama3_8b_few_61_evaluation_{timestamp}.csv"
 
 REMOVE_MISSING_SCHEME = True
-REMOVE_UNKNOWN_CODE99 = True  # drop 99.00
+REMOVE_UNKNOWN_CODE99 = False
 
 llm_df = pd.read_csv(LLM_RESULTS_CSV)
 clin_df = pd.read_csv(CLINICIAN_CSV)
