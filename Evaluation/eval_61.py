@@ -63,17 +63,17 @@ def norm_str_for_eq(s: Optional[str]) -> str:
     s = re.sub(r"\s+", " ", s)
     return s
 
-LLM_RESULTS_CSV = "/spaces/25G05/FewShot/llama3_8b_fewshot_61_results_20251015_122022.csv"
+LLM_RESULTS_CSV = "/spaces/25G05/Aaliyah/FewShot/llama3_70b_fewshot_61_results_20251017_151059.csv"
 CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
-MAPPING_CSV     = "/spaces/25G05/61COD/clinician_to_scheme_mapping.csv"
+MAPPING_CSV     = "/spaces/25G05/61_codes.csv"
 
-LOG_FILE = "/spaces/25G05/Aaliyah/evaluation_log.txt"
+LOG_FILE = "/spaces/25G05/Rizwaanah/evaluation_log.txt"
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_EVAL_CSV = f"/spaces/25G05/Aaliyah/Evaluation/llama3_8b_few_61_evaluation_{timestamp}.csv"
+OUTPUT_EVAL_CSV = f"/spaces/25G05/Rizwaanah/Evaluation/llama3_70b_few_61_evaluation_{timestamp}.csv"
 
 REMOVE_MISSING_SCHEME = True
-REMOVE_UNKNOWN_CODE99 = False
+REMOVE_UNKNOWN_CODE99 = True
 
 llm_df = pd.read_csv(LLM_RESULTS_CSV)
 clin_df = pd.read_csv(CLINICIAN_CSV)
