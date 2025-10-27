@@ -6,12 +6,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, List
 
-# ---------- CONFIG ----------
-# Filtering options
+# Filtering 
 REMOVE_MISSING_ICD10 = True    # Remove entries with missing/empty clinician ICD-10 codes
 REMOVE_R99_CODES = True        # Remove entries with R99 (ill-defined causes) codes
 
-# LLM comparison settings
 ENABLE_SEMANTIC_COMPARISON = True  # Enable/disable semantic comparison
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 COMPARISON_MODEL = "llama3:latest"  # Model for semantic comparison
@@ -24,30 +22,22 @@ CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 OUTPUT_EVAL_CSV = f"/spaces/25G05/CODlist/llama3_8b_COD_evaluation_english_{timestamp}.csv"
 
-# ---------- HELPERS ----------
 ICD10_PATTERN = re.compile(r"[A-Z][0-9]{2}(?:\.[0-9])?")
 
 def extract_icd10_roots(text: str) -> List[str]:
-    """
-    Find all ICD-10 codes in a string and return unique 3-char roots (e.g., J18.9 -> J18).
-    Handles multiple codes and extra prose.
-    """
     if text is None or (isinstance(text, float) and pd.isna(text)):
         return []
     matches = ICD10_PATTERN.findall(str(text).upper())
-    roots = {m[:3] for m in matches}  # unique 3-char roots
+    roots = {m[:3] for m in matches}  
     return sorted(roots)
 
 def icd_root_or_none(text: str) -> Optional[str]:
-    """Return the 3-char root of the first ICD-10 code in text, or None if none found."""
+    # Return the 3-char root of the first ICD-10 code in text, or None if none found.
     roots = extract_icd10_roots(text)
     return roots[0] if roots else None
 
 def semantic_comparison(llm_description: str, clinician_description: str) -> bool:
-    """
-    Use another LLM to compare semantic similarity between LLM and clinician descriptions.
-    Returns True if they represent the same/similar medical condition.
-    """
+    # Use another LLM to compare semantic similarity between LLM and clinician descriptions.
     if not llm_description.strip() or not clinician_description.strip():
         return False
     
@@ -82,7 +72,6 @@ Respond with ONLY "YES" if they represent the same/similar condition, or "NO" if
         print(f"Error in semantic comparison: {e}")
         return False
 
-# ---------- LOAD ----------
 llm_df = pd.read_csv(LLM_RESULTS_CSV)
 clin_df = pd.read_csv(CLINICIAN_CSV)
 
@@ -97,15 +86,13 @@ interva_df = interva_df[interva_cols]
 # Normalize ID column name
 llm_df = llm_df.rename(columns={"id": "individual_id"})
 
-# ---------- MERGE ----------
 # First merge LLM results with clinician data
 df = pd.merge(llm_df, clin_df, on="individual_id", how="inner")
 
 # Then merge with InterVA predictions
-df = pd.merge(df, interva_df, on="individual_id", how="left")  # left join to keep all LLM results
+df = pd.merge(df, interva_df, on="individual_id", how="left")  
 print(f"Merged with InterVA predictions. Final dataset has {len(df)} entries.")
 
-# ---------- FILTER DATA ----------
 initial_count = len(df)
 filter_reasons = []
 
@@ -133,7 +120,6 @@ else:
     print("No entries filtered")
 print(f"Remaining entries for evaluation: {filtered_count}")
 
-# Update filter description for logging
 filter_description = []
 if REMOVE_MISSING_ICD10:
     filter_description.append("missing ICD-10")
@@ -141,8 +127,6 @@ if REMOVE_R99_CODES:
     filter_description.append("R99 codes")
 filter_desc = " and ".join(filter_description) if filter_description else "none"
 
-# ---------- COMPUTE FIELDS ----------
-# Preserve original LLM ICD-10 text (non-cleaned)
 df["llm_icd10_raw"] = df["icd10_code"].fillna("")
 
 # LLM cleaned codes (all roots, joined)
@@ -152,7 +136,6 @@ df["llm_icd10_code"] = df["llm_icd10_roots"].apply(lambda xs: ";".join(xs) if xs
 # Clinician root code (cleaned for comparison)
 df["clinician_icd10_code"] = df["ICD10Code"].apply(lambda x: icd_root_or_none(x) or "")
 
-# Friendly descriptions
 df["llm_english_description"] = df["cause_of_death"].fillna("")
 df["clinician_english_description"] = df["CauseofDeath"].fillna("")
 
@@ -175,14 +158,14 @@ def is_correct_first_letter(row) -> bool:
 df["correct"] = df.apply(is_correct, axis=1)
 df["correct_first_letter"] = df.apply(is_correct_first_letter, axis=1)
 
-# ---------- SEMANTIC COMPARISON ----------
+# Semantic comparison
 if ENABLE_SEMANTIC_COMPARISON:
     print("Performing semantic comparison of English descriptions...")
     print(f"This may take a while for {len(df)} entries...")
     
     semantic_results = []
     for idx, row in df.iterrows():
-        if idx % 10 == 0:  # Progress indicator
+        if idx % 10 == 0:  
             print(f"Processed {idx}/{len(df)} entries...")
         
         result = semantic_comparison(
@@ -197,7 +180,6 @@ else:
     df["correct_semantic"] = False
     print("Semantic comparison disabled.")
 
-# ---------- SUMMARY ----------
 total = len(df)
 correct_n = int(df["correct"].sum())
 correct_first_letter_n = int(df["correct_first_letter"].sum())
@@ -215,7 +197,7 @@ print(f"Correct matches (first letter): {correct_first_letter_n} ({accuracy_firs
 if ENABLE_SEMANTIC_COMPARISON:
     print(f"Correct matches (semantic similarity): {correct_semantic_n} ({accuracy_semantic:.2%})")
 
-# ---------- LOG RESULTS ----------
+# log results
 log_entry = f"""
 {'='*60}
 English Evaluation Run: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -249,24 +231,24 @@ with open(LOG_FILE, 'a', encoding='utf-8') as f:
 
 print(f"\nResults logged to: {LOG_FILE}")
 
-# ---------- WRITE OUTPUT ----------
+# output CSV
 out_cols = [
     "individual_id",
-    "llm_icd10_raw",               # original non-cleaned LLM field
-    "llm_icd10_code",              # cleaned roots (e.g., J18;L51)
+    "llm_icd10_raw",               # original 
+    "llm_icd10_code",              # cleaned 
     "llm_english_description",
     "clinician_english_description",
-    "clinician_icd10_code",        # cleaned clinician root used for comparison
+    "clinician_icd10_code",        # cleaned clinician root 
     "correct",                     # exact ICD-10 match
     "correct_first_letter",        # first letter match
     "correct_semantic",            # semantic similarity match
     # InterVA predictions
-    "cause1",                      # InterVA top prediction
-    "prob1",                       # InterVA top prediction probability
-    "cause2",                      # InterVA second prediction
-    "prob2",                       # InterVA second prediction probability
-    "cause3",                      # InterVA third prediction
-    "prob3",                       # InterVA third prediction probability
+    "cause1",                  
+    "prob1",                      
+    "cause2",                      
+    "prob2",                       
+    "cause3",                      
+    "prob3",                       
 ]
 out_df = df[out_cols].rename(columns={"individual_id": "ID"})
 out_df.to_csv(OUTPUT_EVAL_CSV, index=False)
