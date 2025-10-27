@@ -416,8 +416,7 @@ def format_case_for_llm(row: pd.Series) -> str:
     if pd.isna(narrative) or str(narrative).strip() == '':
         narrative = "No narrative provided"
     
-    prompt_parts.append("\nNARRATIVE:")
-    prompt_parts.append(str(narrative).strip())
+
     prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis.")
     
     return "\n".join(prompt_parts)

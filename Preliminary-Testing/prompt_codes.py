@@ -2,9 +2,6 @@
 """
 Single Case Verbal Autopsy Llama3 Prompt Script
 
-This script lets you input an individual_id, extracts the corresponding row from the VA dataset,
-formats all columns and values into a prompt with human-readable field names, sends it to the Llama3 model via Ollama, and writes the full response to an output text file.
-
 Usage:
     python va_prompt_single.py <individual_id>
 """
@@ -14,7 +11,6 @@ import pandas as pd
 import requests
 from pathlib import Path
 
-# Constants
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 MODEL_NAME = "llama4_VA:latest"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
@@ -424,7 +420,6 @@ def format_case_for_llm(row: pd.Series) -> str:
         if isinstance(value, str) and value.strip() == '-':
             continue
         
-        # For binary fields, only include if value is 'y' or 'n'
         if column_name.startswith('i') and isinstance(value, str):
             if value.strip().lower() not in ['y', 'n']:
                 continue
@@ -437,8 +432,6 @@ def format_case_for_llm(row: pd.Series) -> str:
     if pd.isna(narrative) or str(narrative).strip() == '':
         narrative = "No narrative provided"
     
-    prompt_parts.append("\nNARRATIVE:")
-    prompt_parts.append(str(narrative).strip())
     prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis using the appropriate ICD-10 code from the reference list above.")
     
     return "\n".join(prompt_parts)
@@ -465,13 +458,12 @@ def main():
     # Format prompt with human-readable field names
     prompt = format_case_for_llm(row)
     
-    # Query Llama3 via Ollama
     payload = {
         "model": MODEL_NAME,
         "prompt": prompt,
         "stream": False,
         "options": {
-            "report_usage": True   # tells Ollama to include token usage in its response
+            "report_usage": True
         }
     }
     
