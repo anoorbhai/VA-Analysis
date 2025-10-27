@@ -6,12 +6,12 @@ from datetime import datetime
 from typing import Optional
 
 WS_RE = re.compile(r"\s+")
-NON_PRINT_RE = re.compile(r"[\u2000-\u200b\u202f\u00a0]")  # zero-width & NBSP
-SCHEME_CODE_RE = re.compile(r"^\d{2}\.\d{2}$")            # e.g., 04.02
+NON_PRINT_RE = re.compile(r"[\u2000-\u200b\u202f\u00a0]") 
+SCHEME_CODE_RE = re.compile(r"^\d{2}\.\d{2}$")            
 ICD10_ROOT_RE  = re.compile(r"[A-Z][0-9]{2}")
 
 def clean_text(s):
-    """Strip, remove invisible spaces, collapse whitespace, drop surrounding quotes."""
+    """remove invisible spaces, collapse whitespace, drop surrounding quotes."""
     if s is None:
         return ""
     s = str(s)
@@ -25,10 +25,8 @@ def clean_text(s):
 def normalize_scheme_code(x):
     """
     Normalize scheme codes to NN.NN
-    Accepts: '4.2', '04.2', '04.02', '0402', ' 04.02 ', etc.
     """
     s = clean_text(x)
-    # dotted form
     m = re.search(r"(\d{1,2})\.(\d{1,2})", s)
     if m:
         a, b = int(m.group(1)), int(m.group(2))
@@ -79,7 +77,7 @@ llm_df = pd.read_csv(LLM_RESULTS_CSV)
 clin_df = pd.read_csv(CLINICIAN_CSV)
 map_df  = pd.read_csv(MAPPING_CSV)
 
-# Accept common variants; keep your canonical names
+# Accept common variants
 llm_df = llm_df.rename(columns={
     "id": "individual_id",
     "ID": "individual_id",
@@ -90,7 +88,7 @@ llm_df = llm_df.rename(columns={
     "confidence": "CONFIDENCE",
     "Confidence": "CONFIDENCE",
 })
-# Coerce to str early
+
 for c in ["individual_id", "CODE", "CAUSE_SHORT", "CONFIDENCE"]:
     if c in llm_df.columns:
         llm_df[c] = llm_df[c].astype(str)
@@ -236,13 +234,11 @@ with open(LOG_FILE, "a", encoding="utf-8") as f:
 
 print(f"Results logged to: {LOG_FILE}")
 
-# Output columns (include both raw & normalized for audit)
+# Output columns 
 out_cols = [
     "individual_id",
-    # LLM
     "llm_code_raw","llm_code_norm","llm_chapter",
     "llm_cause_raw",
-    # Clinician mapped -> scheme
     "clin_code_raw","clin_code_norm","clin_chapter",
     "clin_cause_raw",
     # Original clinician fields (for audit)
