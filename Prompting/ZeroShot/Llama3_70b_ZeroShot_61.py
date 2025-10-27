@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""
-Llama3 70b Zero Shot using 61 InterVA codes Verbal Autopsy Analysis Script
-
-This script processes the VA dataset using Llama3 for cause of death prediction.
-It excludes cause/probability fields and uses the LLM to make predictions based on
-symptom data and narratives.
-"""
 
 import pandas as pd
 import requests
@@ -37,7 +30,7 @@ OUTPUT_CSV_PATH = f"/spaces/25G05/Aaliyah/ZeroShot/llama3_70b_zeroshot_61_result
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "Llama3_70b_Zero_61:latest" 
 
-# Fields to exclude as specified
+# Exclude InsilicoVA predictions
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
 
 # Field code to English meaning mapping
@@ -406,7 +399,7 @@ FIELD_MAPPINGS = {
 }
 
 class LlamaVAProcessor:
-    """Main processor class for VA analysis using Llama3"""
+    
     
     def __init__(self):
         self.session = requests.Session()
@@ -436,7 +429,7 @@ class LlamaVAProcessor:
             logger.error("Please ensure Ollama is running: ollama serve")
         
     def load_dataset(self) -> pd.DataFrame:
-        """Load the VA dataset and exclude specified fields"""
+
         logger.info(f"Loading dataset from {INPUT_CSV_PATH}")
         
         try:
@@ -490,19 +483,13 @@ class LlamaVAProcessor:
         if pd.isna(narrative) or str(narrative).strip() == '':
             narrative = "No narrative provided"
         
-        prompt_parts.append("\nNARRATIVE:")
-        prompt_parts.append(str(narrative).strip())
+        
         prompt_parts.append("\nPlease analyze this verbal autopsy case and provide your diagnosis.")
         
         return "\n".join(prompt_parts)
     
     def query_llm(self, prompt: str) -> Tuple[Optional[str], Optional[str], Optional[int], float]:
-        """
-        Query the Ollama LLM and parse the response
-        
-        Returns:
-            Tuple of (cause_short, code, confidence, execution_time)
-        """
+
         start_time = time.time()
         
         try:
@@ -548,12 +535,7 @@ class LlamaVAProcessor:
             return None, None, None, execution_time
     
     def parse_llm_response(self, response_text: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
-        """
-        Parse the structured LLM response to extract cause, code, and confidence
         
-        Expected format:
-        { "ID": "DOBMC", "CAUSE_SHORT": "Acute Respiratory Tract Infection (Pneumonia)", "Code": "01.02", "CONFIDENCE": "90" }
-        """
         try:
             data = json.loads(response_text)
             cause_short = data.get("CAUSE_SHORT")
@@ -571,17 +553,7 @@ class LlamaVAProcessor:
             return None, None, None
     
     def process_cases(self, df: pd.DataFrame, start_idx: int = 0, max_cases: Optional[int] = None) -> List[Dict]:
-        """
-        Process cases through the LLM with timing and error handling
         
-        Args:
-            df: DataFrame with VA cases
-            start_idx: Starting index for processing (for resuming)
-            max_cases: Maximum number of cases to process (for testing)
-            
-        Returns:
-            List of result dictionaries
-        """
         results = []
         total_cases = len(df) if max_cases is None else min(max_cases, len(df))
         end_idx = start_idx + total_cases if max_cases else len(df)
@@ -652,7 +624,7 @@ class LlamaVAProcessor:
             successful_cases = len([r for r in results if r['cause_of_death'] not in ['ERROR', 'PROCESSING_ERROR']])
             avg_time = sum([r['time_taken_seconds'] for r in results]) / len(results) if results else 0
             
-            # Add summary row with totals
+            
             summary_row = {
                 'id': 'SUMMARY',
                 'cause_of_death': f'Success Rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)',
@@ -708,16 +680,15 @@ def main():
         df = processor.load_dataset()
         df_filtered = df[df['individual_id'].astype(str).isin(valid_ids)]
         
-        # For testing, you can limit the number of cases
-        max_cases = 1000  # Process all cases
+       
+        max_cases = None  # Process all cases
         
-        # Process cases through LLM
+        
         logger.info("Starting LLM processing...")
         start_time = time.time()
         results = processor.process_cases(df_filtered, max_cases=max_cases)
         total_processing_time = time.time() - start_time
-        
-        # Save results
+
         processor.save_final_results(results, total_processing_time)
         
         logger.info("Processing completed successfully!")
