@@ -8,11 +8,6 @@ MAKE_PRESENCE_FLAGS = True
 EXCLUDE_FILES = {"interva_cod"}
 
 def read_csv_with_prefix(fp: Path, make_presence: bool = True) -> pd.DataFrame:
-    """
-    Reads a CSV, ensures AnonId is string, and prefixes all columns (except AnonId)
-    with the file stem (e.g., 'ChildSymptoms__Fever').
-    Optionally adds a presence flag for that file.
-    """
     stem = fp.stem  
 
     df = pd.read_csv(

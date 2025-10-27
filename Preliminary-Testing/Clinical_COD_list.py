@@ -6,8 +6,6 @@ OUTPUT_SNIPPET = Path("/spaces/25G05/Aaliyah/Clinical_COD_pairs.txt")
 
 MAX_ROWS = None
 
-# Column names in the CSV
-
 COL_CAUSE = "CauseofDeath"
 COL_CODE  = "ICD10Code"
 
@@ -39,7 +37,6 @@ def main():
     if df.empty:
         raise ValueError("No (CauseofDeath, ICD10Code) pairs found after cleaning.")
 
-    # To go into model file
     lines = []
     lines.append('Use the following physician-coded pairs as reference for ICD-10 mapping.')
     lines.append('')
@@ -50,7 +47,6 @@ def main():
     lines.append('"""')
     snippet = "\n".join(lines)
 
-    # Write snippet to a file
     OUTPUT_SNIPPET.write_text(snippet, encoding="utf-8")
     print(f"Wrote snippet to: {OUTPUT_SNIPPET.resolve()}")
 

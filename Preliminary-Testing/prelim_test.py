@@ -25,21 +25,17 @@ def build_prompt(csv_path: str, target_anon_id: str, instructions: str = "") -> 
         print(f"AnonId {target_anon_id} not found in {csv_path}.")
         return ""
 
-    # Build prompt dynamically from all columns
     prompt_parts = []
     
-    # Add instructions if provided
     if instructions:
         prompt_parts.append(instructions)
     
-    # Add each column and its value
     for column_name, value in row.items():
         if value and value.strip():  # Only include non-empty values
-            # Clean up the value (strip whitespace, handle long text)
+            # Clean up the value
             cleaned_value = value.strip()
             prompt_parts.append(f"{column_name}: {cleaned_value}")
     
-    # Join all parts with newlines
     prompt = "\n".join(prompt_parts) + "\n\n"
     
     return prompt
@@ -58,10 +54,9 @@ def main():
     cod_csv_path = '/dataA/madiva/va/VA/InterVA_COD.csv'
     target_anon_id = 'CZEFF'
 
-    # Build the prompt using the updated function
     prompt = build_prompt(csv_path, target_anon_id, instructions)
     
-    if not prompt:  # If build_prompt returned empty string (AnonId not found)
+    if not prompt:
         return
 
     print(f"Prompting {model}...")

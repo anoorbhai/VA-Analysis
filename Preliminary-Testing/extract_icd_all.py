@@ -1,9 +1,6 @@
 import csv
 
 def extract_csv_to_text_simple(csv_filename, txt_filename):
-    """
-    Alternative version - simpler format output
-    """
     try:
         with open(csv_filename, 'r', encoding='utf-8') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=';')
@@ -23,7 +20,7 @@ def extract_csv_to_text_simple(csv_filename, txt_filename):
 
 # Usage example
 if __name__ == "__main__":
-    csv_file = "Preliminary-Testing/ICD 10 Codes.csv"  # Replace with your CSV filename
-    txt_file = "Preliminary-Testing/icd10_codes_all.txt"  # Output text filename
+    csv_file = "Preliminary-Testing/ICD 10 Codes.csv"
+    txt_file = "Preliminary-Testing/icd10_codes_all.txt"
     
     extract_csv_to_text_simple(csv_file, txt_file)
