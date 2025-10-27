@@ -1,4 +1,4 @@
-FROM llama3:latest
+FROM llama3:70b
 
 # System instruction tailored to verbal autopsy
 SYSTEM """
