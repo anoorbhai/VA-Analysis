@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-llama4 Few-Shot Verbal Autopsy Analysis Script
-
-This script processes the VA dataset using llama4 for cause of death prediction.
-It excludes cause/probability fields and uses the LLM to make predictions based on
-symptom data and narratives.
-"""
-
 import pandas as pd
 import requests
 import json
@@ -33,9 +25,9 @@ logger = logging.getLogger(__name__)
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 # Generate timestamped output filename
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_CSV_PATH = f"/spaces/25G05/FewShot/llama4_fewshot_results_{timestamp}.csv"
+OUTPUT_CSV_PATH = f"/spaces/25G05/Rizwaanah/FewShot/llama4_fewshot_results_{timestamp}.csv"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama4_VA2:latest" 
+MODEL_NAME = "Llama4_scout_Few:latest " 
 
 # Fields to exclude as specified
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
@@ -406,15 +398,13 @@ FIELD_MAPPINGS = {
 }
 
 class LlamaVAProcessor:
-    """Main processor class for VA analysis using llama4"""
-    
+   
     def __init__(self):
         self.session = requests.Session()
         self.results = []
         self.check_ollama_connection()
     
     def check_ollama_connection(self):
-        """Check if Ollama is running and model is available"""
         try:
             # Test connection to Ollama
             test_url = "http://localhost:11434/api/tags"
@@ -438,7 +428,6 @@ class LlamaVAProcessor:
             logger.error("Please ensure Ollama is running: ollama serve")
         
     def load_dataset(self) -> pd.DataFrame:
-        """Load the VA dataset and exclude specified fields"""
         logger.info(f"Loading dataset from {INPUT_CSV_PATH}")
         
         try:
@@ -463,7 +452,6 @@ class LlamaVAProcessor:
             raise
     
     def format_case_for_llm(self, row: pd.Series) -> str:
-        """Format a single case for LLM input using human-readable field names and filtering out '-' values."""
         prompt_parts = []
         individual_id = row.get('individual_id', 'Unknown')
         prompt_parts.append(f"Case ID: {individual_id}")
@@ -475,16 +463,13 @@ class LlamaVAProcessor:
             if pd.isna(value) or (isinstance(value, str) and value == ''):
                 continue
             
-            # Skip fields with '-' values - only include 'y' and 'n' responses
             if isinstance(value, str) and value.strip() == '-':
                 continue
             
-            # For binary fields, only include if value is 'y' or 'n'
             if column_name.startswith('i') and isinstance(value, str):
                 if value.strip().lower() not in ['y', 'n']:
                     continue
                     
-            # Get human-readable field name
             field_name = FIELD_MAPPINGS.get(column_name, column_name)
             prompt_parts.append(f"{field_name}: {value}")
         
@@ -499,16 +484,10 @@ class LlamaVAProcessor:
         return "\n".join(prompt_parts)
     
     def query_llm(self, prompt: str) -> Tuple[Optional[str], Optional[str], Optional[int], float]:
-        """
-        Query the Ollama LLM and parse the response
-        
-        Returns:
-            Tuple of (cause_short, icd10_code, confidence, execution_time)
-        """
+    
         start_time = time.time()
         
         try:
-            # Prepare the request payload
             payload = {
                 "model": MODEL_NAME,
                 "prompt": prompt,
@@ -529,7 +508,6 @@ class LlamaVAProcessor:
                 result = response.json()
                 response_text = result.get('response', '')
                 
-                # Parse the structured response
                 cause_short, icd10_code, confidence = self.parse_llm_response(response_text)
                 
                 logger.debug(f"LLM response parsed: cause={cause_short}, icd10={icd10_code}, conf={confidence}")
@@ -550,12 +528,7 @@ class LlamaVAProcessor:
             return None, None, None, execution_time
     
     def parse_llm_response(self, response_text: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
-        """
-        Parse the structured LLM response to extract cause, ICD10, and confidence
-        
-        Expected format:
-        { "ID": "DOBMC", "CAUSE_SHORT": "Acute Respiratory Tract Infection (Pneumonia)", "ICD10": "J18.0", "CONFIDENCE": "90" }
-        """
+
         try:
             data = json.loads(response_text)
             cause_short = data.get("CAUSE_SHORT")
@@ -573,17 +546,8 @@ class LlamaVAProcessor:
             return None, None, None
     
     def process_cases(self, df: pd.DataFrame, start_idx: int = 0, max_cases: Optional[int] = None) -> List[Dict]:
-        """
-        Process cases through the LLM with timing and error handling
-        
-        Args:
-            df: DataFrame with VA cases
-            start_idx: Starting index for processing (for resuming)
-            max_cases: Maximum number of cases to process (for testing)
-            
-        Returns:
-            List of result dictionaries
-        """
+        # Process cases through the LLM with timing and error handling
+
         results = []
         total_cases = len(df) if max_cases is None else min(max_cases, len(df))
         end_idx = start_idx + total_cases if max_cases else len(df)
@@ -600,7 +564,6 @@ class LlamaVAProcessor:
             logger.info(f"Processing case {idx+1}/{len(df)}: {individual_id}")
             
             try:
-                # Format case for LLM
                 prompt = self.format_case_for_llm(row)
                 
                 # Query LLM
@@ -648,15 +611,12 @@ class LlamaVAProcessor:
 
     
     def save_final_results(self, results: List[Dict], total_processing_time: float):
-        """Save final results to CSV"""
         try:
             df_results = pd.DataFrame(results)
             
-            # Calculate summary statistics
             successful_cases = len([r for r in results if r['cause_of_death'] not in ['ERROR', 'PROCESSING_ERROR']])
             avg_time = sum([r['time_taken_seconds'] for r in results]) / len(results) if results else 0
             
-            # Add summary row with totals
             summary_row = {
                 'id': 'SUMMARY',
                 'cause_of_death': f'Success Rate: {successful_cases}/{len(results)} ({successful_cases/len(results)*100:.1f}%)',
@@ -666,10 +626,8 @@ class LlamaVAProcessor:
                 'processed_at': f'Total Processing Time: {total_processing_time:.2f}s'
             }
             
-            # Append summary row to results
             df_results = pd.concat([df_results, pd.DataFrame([summary_row])], ignore_index=True)
             
-            # Ensure the output directory exists
             output_dir = Path(OUTPUT_CSV_PATH).parent
             output_dir.mkdir(parents=True, exist_ok=True)
             
@@ -689,7 +647,7 @@ class LlamaVAProcessor:
     def load_valid_ids(self, clinician_cod_path: str) -> set:
         df_cod = pd.read_csv(clinician_cod_path)
         
-        # Filter out entries with NR or empty ICD10 codes
+        # Filter out entries 
         initial_count = len(df_cod)
         df_cod = df_cod[df_cod['ICD10Code'].notna()]  # Remove NaN values
         df_cod = df_cod[df_cod['ICD10Code'].astype(str).str.strip() != ""]  # Remove empty strings
@@ -702,7 +660,6 @@ class LlamaVAProcessor:
         return set(df_cod['individual_id'].dropna().astype(str))
 
 def main():
-    """Main execution function"""
     logger.info("Starting llama4 Zero-Shot VA Analysis")
     logger.info(f"Input: {INPUT_CSV_PATH}")
     logger.info(f"Output: {OUTPUT_CSV_PATH}")
@@ -715,10 +672,8 @@ def main():
         df = processor.load_dataset()
         df_filtered = df[df['individual_id'].astype(str).isin(valid_ids)]
         
-        # For testing, you can limit the number of cases
-        max_cases = None  # Process all cases
+        max_cases = None  
         
-        # Process cases through LLM
         logger.info("Starting LLM processing...")
         start_time = time.time()
         results = processor.process_cases(df_filtered, max_cases=max_cases)
