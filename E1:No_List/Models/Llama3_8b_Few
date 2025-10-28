@@ -94,7 +94,7 @@ Narrative: He was assaulted by family member, after few hours he started he star
 
 Response:
 icd_10,cause_of_death,confidence
-Y09,0.99999999922
+Y09,Assault,0.99999999922
 
 EXAMPLE 3: 
 AGe at Death: 50

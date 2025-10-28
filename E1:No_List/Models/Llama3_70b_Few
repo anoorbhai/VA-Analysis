@@ -55,8 +55,8 @@ In the final days before death, did anyone use a telephone or cell phone to call
 Narrative: He start by diarrhoea and weak body, left over treatment from hospital was given but nothing change, after two days diarrhoea and weak body was worse he taken to hospital as an outpatient the doctor said he defaulted treatment for HIV, water drip, syrup w
 
 Response:
-cause_of_death,confidence
-HIV/AIDS related death,0.99999985134729 
+icd_10,cause_of_death,confidence
+B24,HIV/AIDS related death,0.99999985134729 
 
 EXAMPLE 2: 
 Age at Death: 68
@@ -89,8 +89,8 @@ In the final days before death, did anyone use a telephone or cell phone to call
 Narrative: He was assaulted by family member, after few hours he started he started to have difficult in breathing,unable to talk and fever, nothing was done he then to vomit. He was taken to hospital where he was admitted, doctors didn't tell what was the problem. Oxygen and injections was given but nothing changed. He then started to bleed through nose and mouth. He died at hospital the same day
 
 Response:
-cause_of_death,confidence
-Assault,0.99999999922
+icd_10,cause_of_death,confidence
+Y09,Assault,0.99999999922
 
 EXAMPLE 3: 
 AGe at Death: 50
@@ -113,8 +113,9 @@ In the final days before death, did anyone use a telephone or cell phone to call
 Narrative: He  wake up in the morning having the stiffness of the whole body,swollen legs, having diarrhoea and  unable to do nothing. He was taken to the hospital, doctor didn't say anything, tablets was given as out patient but nothing change. He died at home after three days of consulting.
 
 Response:
-cause_of_death,confidence
-Diarrhoeal diseases,0.999980997170357 
+icd_10,cause_of_death,confidence
+A09,Diarrhoeal diseases,0.999980997170357 
+
 
 EXAMPLE 4: 
 Age at Death: 52
@@ -135,8 +136,8 @@ In the final days before death, did anyone use a telephone or cell phone to call
 Narrative: The deceased was passenger in a light vehicle, their car over take another car and it was hit by  a truck. The deceased was injured on the head and chest,  he died at the spot
 
 Response:
-cause_of_death,confidence
-Road traffic accident,0.996953310682554
+icd_10,cause_of_death,confidence
+V49,Road traffic accident,0.996953310682554
 """
 
 # Inference parameters 
