@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=llama3
-#SBATCH --output=logs/llama3_70b_61_cods%j.out
-#SBATCH --error=logs/llama3_70b_61_cods%j.err
-#SBATCH --time=7-00:00:00
+#SBATCH --output=llama3_70b_61_cods%j.out
+#SBATCH --error=llama3_70b_61_cods%j.err
 #SBATCH --reservation=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --mem=32G
 
 # Change to script directory
-cd /home/noorbhaia/VA-Analysis
+cd /home/seedatr/VA-Analysis
+
+ollama create Llama3_70b_zero_61 -f E4:61_WHO_Causes/Models/Llama3_70b_zero_61
 
 # Run the Python script
-python Prompting/FewShot/Llama3_70b_FewShot_61.py
+python E4:61_WHO_Causes/Prompting/Llama3_70b_ZeroShot_61.py
