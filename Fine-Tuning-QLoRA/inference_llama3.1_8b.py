@@ -43,7 +43,7 @@ login(token=hf_token)
 
 # Configuration
 BASE_MODEL = "meta-llama/Llama-3.1-8B-Instruct"
-LORA_ADAPTER_PATH = "Fine-Tuning-QLoRA/llama3-8b-qlora-va/checkpoint-500"
+LORA_ADAPTER_PATH = "Fine-Tuning-QLoRA/llama3.1-8b-qlora-va/checkpoint-500"
 TEST_DATA_PATH = "/spaces/25G05/Fine-Tuning/test.jsonl"
 OUTPUT_DIR = Path("/spaces/25G05/Fine-Tuning")
 OUTPUT_CSV = OUTPUT_DIR / f"inference_results_{log_timestamp}.csv"

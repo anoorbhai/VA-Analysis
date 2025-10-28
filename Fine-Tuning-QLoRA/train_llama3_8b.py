@@ -20,10 +20,10 @@ if not hf_token:
 login(token=hf_token)
 
 # ----------------- Config -----------------
-MODEL_DIR          = "meta-llama/Llama-3.1-8B-Instruct"
+MODEL_DIR          = "meta-llama/Meta-Llama-3-8B-Instruct"
 TRAIN_PATH         = "/spaces/25G05/Fine-Tuning/train.jsonl"
 VAL_PATH           = "/spaces/25G05/Fine-Tuning/test.jsonl"
-OUTPUT_DIR         = "Fine-Tuning-QLoRA/llama3-8b-qlora-va"
+OUTPUT_DIR         = "Fine-Tuning-QLoRA/llama3-8b-va"
 MAX_INPUT_TOKENS   = 2048
 BATCH_SIZE_PER_DEV = 2
 GR_ACCUM_STEPS     = 8
@@ -32,7 +32,7 @@ NUM_EPOCHS         = 3
 LORA_R             = 16
 LORA_ALPHA         = 32
 LORA_DROPOUT       = 0.05
-TARGET_MODULES     = ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]  # common for LLaMA
+TARGET_MODULES     = ["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj"]
 # ------------------------------------------
 
 def format_example(ex):

@@ -14,6 +14,6 @@ set +a
 source qlora_env/bin/activate
 
 # Run the training script
-python Fine-Tuning-QLoRA/train_llama8b.py
+python Fine-Tuning-QLoRA/train_llama3_8b.py
 
 echo "Training completed!"

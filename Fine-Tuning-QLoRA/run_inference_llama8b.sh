@@ -14,6 +14,6 @@ set +a
 source qlora_env/bin/activate
 
 # Run the inference script
-python Fine-Tuning-QLoRA/inference_llama8b.py
+python Fine-Tuning-QLoRA/inference_llama3.1_8b.py
 
 echo "Inference completed!"
