@@ -1,0 +1,26 @@
+# Core libraries
+torch==2.3.1
+accelerate==0.33.0
+transformers==4.43.4
+peft==0.11.1
+bitsandbytes==0.43.3
+datasets==2.20.0
+sentencepiece==0.2.0
+tokenizers==0.19.1
+
+# Training utilities
+numpy==1.26.4
+scipy==1.13.1
+tqdm==4.66.5
+
+# Optional but recommended
+evaluate==0.4.2
+scikit-learn==1.5.2
+protobuf==5.27.2
+
+# Disable online logging
+wandb==0.17.7
+
+# Ensure compatibility on cluster
+typing-extensions==4.12.2
+packaging==24.1
