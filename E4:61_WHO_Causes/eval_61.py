@@ -6,19 +6,23 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict
 
-LLM_RESULTS_CSV = "/spaces/25G05/Rizwaanah/Zeroshot/llama3_8b_zeroshot_61_results_20251029_121408.csv"
+LLM_RESULTS_CSV = "/spaces/25G05/Aaliyah/FewShot/llama3_70b_fewshot_61_results_20251029_002216.csv"
 CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
 MAPPING_CSV     = "/spaces/25G05/61_codes.csv"
 
-OUTPUT_DIR = "/spaces/25G05/Rizwaanah/Evaluation"
+# Output Configuration
+OUTPUT_DIR = "/spaces/25G05/Aaliyah/Evaluation"
 OUTPUT_FILENAME = None  
 
+# Filtering 
 REMOVE_MISSING_SCHEME = True
 
-LABEL_FIELD = "scheme_code" 
+# Evaluation Parameters
+LABEL_FIELD = "scheme_code"  
 TOPK = 5  
-UNCERTAINTY_CODE = "99.00" 
-EXCLUDE_UNCERTAINTY = True  
+UNCERTAINTY_CODE = "99.00"  
+EXCLUDE_UNCERTAINTY = True 
+
 
 WS_RE = re.compile(r"\s+")
 NON_PRINT_RE = re.compile(r"[\u2000-\u200b\u202f\u00a0]")
@@ -91,6 +95,7 @@ def norm_code(x: Optional[str]) -> str:
 
 
 def csmf_accuracy(true_labels: List[str], pred_labels: List[str]) -> float:
+    # Compute dataset-level CSMF accuracy using standard Murray/PHMRC formula
     N = len(true_labels)
     if N == 0:
         return float('nan')
@@ -124,7 +129,7 @@ def chance_corrected_concordance(true_labels, pred_labels, all_causes=None):
     if C <= 1:
         return float('nan')
 
-    #  per-cause TP and total true counts (TP+FN)
+    # Precompute per-cause TP and total true counts (TP+FN)
     tp = {c: 0 for c in causes}
     true_totals = {c: 0 for c in causes}
 
@@ -157,7 +162,7 @@ def chance_corrected_concordance(true_labels, pred_labels, all_causes=None):
 
 
 def per_cause_recall(true_labels: List[str], pred_labels: List[str]) -> Dict[str, float]:
-    # Compute recall per label = TP / (TP + FN).
+    # Compute recall per label = TP / (TP + FN)
     labels = sorted(set(true_labels))
     recalls = {}
     for l in labels:
@@ -169,7 +174,6 @@ def per_cause_recall(true_labels: List[str], pred_labels: List[str]) -> Dict[str
 
 
 def topk_by_true_prevalence(true_labels: List[str], k: int, exclude_label: Optional[str] = None) -> List[str]:
-    # Get top-K causes by prevalence in ground truth.
     counts = {}
     for t in true_labels:
         if exclude_label is not None and t == exclude_label:
@@ -209,6 +213,7 @@ def main():
         else:
             llm_df[c] = ""
     
+    # Validate mapping file
     for req in ["scheme_code", "scheme_cause"]:
         if req not in map_df.columns:
             raise ValueError(f"Mapping CSV must include column: {req}")
@@ -234,7 +239,7 @@ def main():
     clin_df["icd10_root_norm"] = clin_df["icd10_root"].str.upper().str.strip()
     clin_df["clin_desc_norm"] = clin_df["CauseofDeath"].apply(norm_str_for_eq)
     
-    # Map clinician data to scheme codes
+    # Map clinician data to scheme codes (ICD-10 root merge)
     merged_a = pd.merge(
         clin_df,
         map_df[["icd10_root_norm", "scheme_code", "scheme_cause"]],
@@ -260,9 +265,11 @@ def main():
         "scheme_cause": "clin_scheme_cause"
     })
     
-    # Merge LLM with clinician data
     df = pd.merge(llm_df, clin_mapped_df, on="individual_id", how="inner")
     print(f"Merged LLM results with clinician data. Entries: {len(df)}")
+    
+    # Normalize clinician scheme codes first 
+    df["true_code_norm"] = df["clin_scheme_code"].fillna("").astype(str).apply(normalize_scheme_code)
     
     initial_count = len(df)
     reasons = []
@@ -276,18 +283,17 @@ def main():
     
     if EXCLUDE_UNCERTAINTY:
         before = len(df)
-        df = df[df["CODE"].astype(str).str.strip() != "99.00"]
+        df = df[df["true_code_norm"] != "99.00"]
         removed = before - len(df)
         if removed:
-            reasons.append(f"{removed} unknown (99.00)")
+            reasons.append(f"{removed} clinician assigned 99.00")
     
     filtered_count = len(df)
     print(f"Filtered: {initial_count - filtered_count} ({'; '.join(reasons) if reasons else 'none'})")
     print(f"Remaining entries for evaluation: {filtered_count}")
     
-    # Normalize for evaluation
+    # Normalize for evaluation 
     df["pred_code_norm"] = df["CODE"].astype(str).apply(normalize_scheme_code)
-    df["true_code_norm"] = df["clin_scheme_code"].fillna("").astype(str).apply(normalize_scheme_code)
     df["pred_cause_norm"] = df.get("CAUSE_SHORT", "").astype(str).apply(norm_text)
     df["true_cause_norm"] = df.get("clin_scheme_cause", "").astype(str).apply(norm_text)
     
@@ -295,12 +301,10 @@ def main():
     df["pred_chapter"] = df["pred_code_norm"].apply(extract_chapter)
     df["true_chapter"] = df["true_code_norm"].apply(extract_chapter)
     
-    # Uncertainty masks
     unc = str(UNCERTAINTY_CODE)
     df["pred_is_unc"] = (df["pred_code_norm"] == unc)
     df["true_is_unc"] = (df["true_code_norm"] == unc)
     
-    # Calculate accuracy metrics on FULL dataset (same as eval_61.py)
     df["code_match"] = (df["pred_code_norm"] == df["true_code_norm"]) & (df["pred_code_norm"] != "")
     df["cause_match"] = (df["pred_cause_norm"] == df["true_cause_norm"]) & (df["pred_cause_norm"] != "")
     df["chapter_match"] = (df["pred_chapter"] == df["true_chapter"]) & (df["pred_chapter"] != "")
@@ -311,11 +315,7 @@ def main():
     both_acc = (df["code_match"] & df["cause_match"]).mean() if total > 0 else float('nan')
     chapter_acc = df["chapter_match"].mean() if total > 0 else float('nan')
     
-    # (CSMF, CCC, recalls require valid labels on both sides)
     base_mask = (df["pred_code_norm"] != "") & (df["true_code_norm"] != "")
-    
-    if EXCLUDE_UNCERTAINTY:
-        base_mask &= (~df["pred_is_unc"]) & (~df["true_is_unc"])
     
     sub = df[base_mask].copy()
     
@@ -329,17 +329,19 @@ def main():
     csmf_acc = csmf_accuracy(true_labels, pred_labels)
     ccc = chance_corrected_concordance(true_labels, pred_labels)
     
-    exclude_unc_label = unc if EXCLUDE_UNCERTAINTY else None
-    labels_for_topk = [t for t in true_labels if not (exclude_unc_label and t == exclude_unc_label)]
-    topk = topk_by_true_prevalence(labels_for_topk, TOPK, exclude_label=exclude_unc_label)
+    # Per-cause recall 
+    labels_for_topk = true_labels
+    topk = topk_by_true_prevalence(labels_for_topk, TOPK, exclude_label=None)
     
     recalls = per_cause_recall(true_labels, pred_labels)
     topk_recalls = {c: recalls.get(c, float('nan')) for c in topk}
     macro_topk_recall = np.nanmean(list(topk_recalls.values())) if len(topk_recalls) > 0 else float('nan')
     
+    # Uncertainty metrics
     valid_pred_mask = (df["pred_code_norm"] != "")
     uncertainty_rate = df.loc[valid_pred_mask, "pred_is_unc"].mean() if valid_pred_mask.any() else float('nan')
     
+    # Uncertainty accuracy
     pred_unc_mask = df["pred_is_unc"]
     if pred_unc_mask.any():
         uncertainty_accuracy = df.loc[pred_unc_mask, "true_is_unc"].mean()
@@ -387,6 +389,7 @@ def main():
         output_recalls_csv = output_dir / f"{base_name}_per_cause_recalls.csv"
         output_detailed_csv = output_dir / f"{base_name}_detailed.csv"
     
+    # Build output text
     output_lines = []
     output_lines.append("=" * 70)
     output_lines.append("COMPREHENSIVE VERBAL AUTOPSY EVALUATION RESULTS")
@@ -402,7 +405,7 @@ def main():
     output_lines.append(f"Top-K causes for recall: {TOPK}")
     output_lines.append(f"Uncertainty code: {unc}")
     output_lines.append(f"Remove missing LLM CODE: {REMOVE_MISSING_SCHEME}")
-    output_lines.append(f"Exclude uncertainty (code 99): {EXCLUDE_UNCERTAINTY}")
+    output_lines.append(f"Exclude clinician-assigned uncertainty (code 99): {EXCLUDE_UNCERTAINTY}")
     output_lines.append("")
     output_lines.append("DATASET SUMMARY")
     output_lines.append("-" * 70)
@@ -451,25 +454,30 @@ def main():
             return None
         return str(val).replace('.', ',')
     
+    # Save summary CSV with metrics as rows
     csv_rows = []
     
     csv_rows.append({"Metric": "LLM results csv", "Value": str(LLM_RESULTS_CSV)})
+
     csv_rows.append({"Metric": "CSMF", "Value": format_numeric(float(csmf_acc)) if csmf_acc == csmf_acc else None})
     csv_rows.append({"Metric": "CCC", "Value": format_numeric(float(ccc)) if ccc == ccc else None})
     
+    # Only include uncertainty metrics if we're not excluding uncertainty
     if not EXCLUDE_UNCERTAINTY:
         csv_rows.append({"Metric": "Uncertainty Rate", "Value": format_numeric(float(uncertainty_rate)) if uncertainty_rate == uncertainty_rate else None})
         csv_rows.append({"Metric": "Uncertainty Precision", "Value": format_numeric(float(uncertainty_accuracy)) if uncertainty_accuracy == uncertainty_accuracy else None})
     
     for i, cause in enumerate(topk, 1):
         recall_val = topk_recalls.get(cause, float('nan'))
-        csv_rows.append({"Metric": f"Top {i} Cause", "Value": cause})  
+        csv_rows.append({"Metric": f"Top {i} Cause", "Value": cause})  # Keep scheme code format unchanged
         csv_rows.append({"Metric": f"Top {i} Recall", "Value": format_numeric(float(recall_val)) if recall_val == recall_val else None})
     
+    # Add macro average
     csv_rows.append({"Metric": "Top 5 Macro Recall", "Value": format_numeric(float(macro_topk_recall)) if macro_topk_recall == macro_topk_recall else None})
     
     pd.DataFrame(csv_rows).to_csv(output_csv, index=False)
     
+    # Save per-cause recalls 
     recalls_df = pd.DataFrame({
         'cause': list(recalls.keys()),
         'recall': [format_numeric(v) for v in recalls.values()]
@@ -495,5 +503,5 @@ def main():
     print(f"  Detailed results: {output_detailed_csv}")
 
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     main()
