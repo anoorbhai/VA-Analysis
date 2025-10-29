@@ -9,15 +9,15 @@ from datetime import datetime
 
 # ==================== CONFIGURATION ====================
 
-INPUT_CSV = "/spaces/25G05/Fine-Tuning/results/match_analysis_inference_results_20251027_225130.csv"
+INPUT_CSV = "/spaces/25G05/Fine-Tuning/match_analysis_inference_results_llama3_8b_20251029_165628.csv"
 OUTPUT_DIR = "/spaces/25G05/Fine-Tuning/results" 
 OUTPUT_FILENAME = None  # None = auto-generate with timestamp
 
 # Evaluation parameters
 LABEL_FIELD = "scheme_code"
-TOPK = 6
+TOPK = 5
 UNCERTAINTY_CODE = "99.0"  
-EXCLUDE_UNCERTAINTY = True
+EXCLUDE_UNCERTAINTY = False
 
 # =======================================================
 
@@ -312,13 +312,43 @@ def main():
     # Print to console
     print('\n'.join(output_lines))
     
-    # Save summary as CSV
-    pd.DataFrame([summary]).to_csv(output_csv, index=False)
+    # Helper function to format numeric values with comma as decimal separator
+    def format_numeric(val):
+        if val is None or (isinstance(val, float) and np.isnan(val)):
+            return None
+        return str(val).replace('.', ',')
     
-    # Save per-cause recalls
+    # Save summary CSV with metrics as rows
+    csv_rows = []
+    
+    # Add accuracy metrics
+    csv_rows.append({"Metric": "Exact Code match", "Value": format_numeric(float(code_acc)) if code_acc == code_acc else None})
+    csv_rows.append({"Metric": "Exact Description Match", "Value": format_numeric(float(cause_acc)) if cause_acc == cause_acc else None})
+    csv_rows.append({"Metric": "Chapter Match", "Value": format_numeric(float(chapter_acc)) if chapter_acc == chapter_acc else None})
+    
+    # Add distribution metrics
+    csv_rows.append({"Metric": "CSMF", "Value": format_numeric(float(csmf_acc)) if csmf_acc == csmf_acc else None})
+    csv_rows.append({"Metric": "CCC", "Value": format_numeric(float(ccc)) if ccc == ccc else None})
+    
+    # Add uncertainty metrics
+    csv_rows.append({"Metric": "Uncertainty Rate", "Value": format_numeric(float(uncertainty_rate)) if uncertainty_rate == uncertainty_rate else None})
+    csv_rows.append({"Metric": "Uncertainty Precision", "Value": format_numeric(float(uncertainty_accuracy)) if uncertainty_accuracy == uncertainty_accuracy else None})
+    
+    # Add individual top 5 cause recalls
+    for i, cause in enumerate(topk[:5], 1):  # Only top 5
+        recall_val = topk_recalls.get(cause, float('nan'))
+        csv_rows.append({"Metric": f"Top {i} Cause", "Value": cause})  # Keep scheme code format unchanged
+        csv_rows.append({"Metric": f"Top {i} Recall", "Value": format_numeric(float(recall_val)) if recall_val == recall_val else None})
+    
+    # Add macro average
+    csv_rows.append({"Metric": "Top 5 Macro Recall", "Value": format_numeric(float(macro_topk_recall)) if macro_topk_recall == macro_topk_recall else None})
+    
+    pd.DataFrame(csv_rows).to_csv(output_csv, index=False)
+    
+    # Save per-cause recalls (with comma as decimal separator)
     recalls_df = pd.DataFrame({
         'cause': list(recalls.keys()),
-        'recall': list(recalls.values())
+        'recall': [format_numeric(v) for v in recalls.values()]
     })
     recalls_df.to_csv(output_recalls_csv, index=False)
     
