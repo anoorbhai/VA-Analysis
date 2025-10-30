@@ -9,13 +9,13 @@ REMOVE_MISSING_ICD10 = True    # Remove entries with missing/empty clinician ICD
 REMOVE_R99_CODES = True       # Remove entries with R99 (ill-defined causes) codes
 
 LOG_FILE = "/spaces/25G05/Aaliyah/evaluation_log.txt"
-LLM_RESULTS_CSV = "/spaces/25G05/Aaliyah/ZeroShot/llama3_70b_zeroshot_COD_no_ICD10_results_20251014_124731.csv" 
+LLM_RESULTS_CSV = "/spaces/25G05/Rizwaanah/ZeroShot/llama3_8b_zeroshot_COD_no_results_20251030_133204.csv" 
 CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
 CLINICAL_COD_PAIRS_FILE = "/spaces/25G05/Aaliyah/Clinical_COD_pairs.txt"
 
 # Generate output filename with current date and time
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_EVAL_CSV = f"/spaces/25G05/Aaliyah/Evaluation/llama3_70b_zeroshot_COD_evaluation_noICD_{timestamp}.csv"
+OUTPUT_EVAL_CSV = f"/spaces/25G05/Rizwaanah/Evaluation/llama3_8b_zeroshot_COD_evaluation_noICD_{timestamp}.csv"
 
 ICD10_PATTERN = re.compile(r"[A-Z][0-9]{2}(?:\.[0-9])?")
 

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 INPUT_CSV_PATH = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 # Generate timestamped output filename
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_CSV_PATH = f"/spaces/25G05/FewShot/llama3_8b_fewshot_COD_no_results_{timestamp}.csv"
+OUTPUT_CSV_PATH = f"/spaces/25G05/Rizwaanah/FewShot/llama3_8b_fewshot_COD_no_results_{timestamp}.csv"
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "Llama3_8b_Few_COD_no_ICD10:latest"
 

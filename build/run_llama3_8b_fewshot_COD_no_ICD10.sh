@@ -1,14 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=logs/llama3_8b_va
-#SBATCH --output=logs/llama3_8b_va_%j.out
-#SBATCH --error=logs/llama3_8b_va_%j.err
-#SBATCH --time=7-00:00:00
+#SBATCH --job-name=llama3_COD_few
+#SBATCH --output=llama3_8b_va_COD_noICD_few%j.out
+#SBATCH --error=llama3_8b_va_COD_noICD_few%j.err
 #SBATCH --reservation=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --mem=32G
 
-# Change to script directory
 cd /home/seedatr/VA-Analysis
 
+ollama create Llama3_8b_Few_COD_no_ICD10 -f E3:COD_No_ICD10_List/Models/Llama3_8b_Few_COD_no_ICD10
+
 # Run the Python script
-python Prompting/FewShot/Llama3_8b_FewShot_COD_no_ICD10.py
+python E3:COD_No_ICD10_List/Prompting/Llama3_8b_FewShot_COD_no_ICD10.py
