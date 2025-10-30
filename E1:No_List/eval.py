@@ -15,7 +15,7 @@ CLINICIAN_CSV   = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv
 
 # Generate output filename with current date and time
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_EVAL_CSV = f"/spaces/25G05/CODlist/llama3_70b_fewshot_COD_evaluation_{timestamp}.csv"
+OUTPUT_EVAL_CSV = f"/spaces/25G05/CODlist/llama3_8b_COD_evaluation_{timestamp}.csv"
 
 ICD10_PATTERN = re.compile(r"[A-Z][0-9]{2}(?:\.[0-9])?")
 

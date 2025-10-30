@@ -221,3 +221,6 @@ Fine-Tuning-QLoRA/llama3.1-8b-qlora-va/
 Fine-Tuning-QLoRA/*/checkpoint-*/
 Fine-Tuning-QLoRA/*/lora_adapter/
 Fine-Tuning-QLoRA/Tests/llama3-8b-qlora-va-quicktest/
+*log
+*.err
+*.out
