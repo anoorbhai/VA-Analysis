@@ -1,20 +1,4 @@
 #!/usr/bin/env python3
-"""
-For every unique scheme_code in 61_codes.csv, find up to 4 example cases:
-- Link clinician ICD10Code prefixes to icd10_root(s) in 61_codes.csv
-- Pull the corresponding rows from madiva_va_dataset_20250924.csv
-- Format each case in the same style as va_prompt_single.py (human-readable fields)
-- Write a single output text file grouping examples by scheme
-
-Usage:
-    python va_prompt_batch_by_scheme.py \
-        --codes /dataA/madiva/va/student/61_codes.csv \
-        --va /dataA/madiva/va/student/madiva_va_dataset_20250924.csv \
-        --clin /dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv \
-        --out /spaces/25G05/ZeroShot/batch_examples_by_scheme.txt \
-        --per-scheme 4
-"""
-
 import argparse
 import sys
 from pathlib import Path
@@ -26,7 +10,7 @@ DEFAULT_CODES_CSV = "/spaces/25G05/61_codes.csv"
 DEFAULT_VA_CSV = "/dataA/madiva/va/student/madiva_va_dataset_20250924.csv"
 DEFAULT_CLIN_CSV = "/dataA/madiva/va/student/madiva_va_clinician_COD_20250926.csv"
 DEFAULT_OUT_TXT = "/spaces/25G05/Rizwaanah/Training/examples_by_scheme.txt"
-DEFAULT_EXAMPLES_PER_SCHEME = 1
+DEFAULT_EXAMPLES_PER_SCHEME = 4
 
 EXCLUDE_FIELDS = ['cause1', 'prob1', 'cause2', 'prob2', 'cause3', 'prob3']
 
@@ -396,22 +380,15 @@ FIELD_MAPPINGS = {
 }
 
 def normalize_icd10_prefix(code: str) -> str:
-    """
-    Return a 3-character ICD-10 root like 'A41' from inputs like 'A41.9', ' a41  ', etc.
-    """
+
     if not isinstance(code, str):
         return ""
     c = code.strip().upper().replace(" ", "")
-    # Remove period if present
     c = c.replace(".", "")
-    # Return first 3 chars
     return c[:3] if len(c) >= 3 else c
 
 def build_scheme_map(codes_df: pd.DataFrame) -> Dict[str, Dict[str, List[str]]]:
-    """
-    Build:
-        scheme_code -> { 'scheme_cause': str, 'roots': [icd10_root, ...] }
-    """
+ 
     tmp = codes_df.copy()
     tmp.columns = [c.strip().lower() for c in tmp.columns]
     if not {'icd10_root', 'scheme_code', 'scheme_cause'}.issubset(set(tmp.columns)):
@@ -435,9 +412,7 @@ def build_scheme_map(codes_df: pd.DataFrame) -> Dict[str, Dict[str, List[str]]]:
     return scheme_map
 
 def format_case_for_llm(row: pd.Series) -> str:
-    """
-    Mirror va_prompt_single.py formatting.
-    """
+  
     prompt_parts = []
     individual_id = row.get('individual_id', 'Unknown')
     prompt_parts.append("\nSYMPTOM DATA:")
@@ -467,10 +442,7 @@ def collect_examples_for_scheme(
     clin_df: pd.DataFrame,
     per_scheme: int
 ) -> List[Tuple[str, str, str, str]]:
-    """
-    Return up to per_scheme examples as a list of tuples:
-        (individual_id, clinician_icd10, clinician_cause, matched_root)
-    """
+   
     if not scheme_roots:
         return []
 
@@ -479,7 +451,6 @@ def collect_examples_for_scheme(
     roots_set = set([r.strip().upper() for r in scheme_roots if isinstance(r, str) and r.strip()])
 
     matched = work[work['icd10_prefix'].isin(roots_set)].copy()
-    # to avoid repeats
     matched = matched.drop_duplicates(subset=['individual_id'])
     matched = matched.sort_values(by=['individual_id'])
 
@@ -507,7 +478,6 @@ def main():
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load inputs
     try:
         codes_df = pd.read_csv(codes_path)
     except Exception as e:
@@ -526,13 +496,11 @@ def main():
         print(f"ERROR reading clinician COD CSV: {clin_path} -> {e}", file=sys.stderr)
         sys.exit(1)
 
-    # column checks for clinician file
     for col in ['individual_id', 'CauseofDeath', 'ICD10Code']:
         if col not in clin_df.columns:
             print(f"ERROR: clinician COD CSV missing column '{col}'", file=sys.stderr)
             sys.exit(1)
 
-    # Build scheme -> roots map
     scheme_map = build_scheme_map(codes_df)
 
     if 'individual_id' not in va_df.columns:
@@ -542,7 +510,6 @@ def main():
     va_df['individual_id'] = va_df['individual_id'].astype(str)
     va_index = va_df.set_index('individual_id', drop=False)
 
-    # Output 
     lines = []
     lines.append("VA PROMPTS BY SCHEME CODE")
     lines.append("=" * 80)
@@ -550,7 +517,6 @@ def main():
     lines.append(f"Examples per scheme: {args.per_scheme}")
     lines.append("")
 
-    # Process each scheme_code in sorted order 
     total_written = 0
     
     extracted_individual_ids = []
@@ -576,7 +542,6 @@ def main():
 
         for idx, (individual_id, icd, cause, matched_root) in enumerate(examples, start=1):
             
-            # collect id
             extracted_individual_ids.append(individual_id)
             
             lines.append(f"[Example {idx}]")
@@ -592,7 +557,6 @@ def main():
 
         lines.append("")  
 
-    # Write output
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
