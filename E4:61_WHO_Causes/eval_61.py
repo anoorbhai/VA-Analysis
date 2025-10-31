@@ -503,5 +503,5 @@ def main():
     print(f"  Detailed results: {output_detailed_csv}")
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
