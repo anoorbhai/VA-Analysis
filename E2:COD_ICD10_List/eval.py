@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import Optional, List
 
 # Filtering 
-REMOVE_MISSING_ICD10 = True    # Remove entries with missing/empty clinician ICD-10 codes
-REMOVE_R99_CODES = True       # Remove entries with R99 (ill-defined causes) codes
+REMOVE_MISSING_ICD10 = True    
+REMOVE_R99_CODES = True       
 
 LOG_FILE = "/spaces/25G05/CODlist/evaluation_log.txt"
 LLM_RESULTS_CSV = "/spaces/25G05/CODlist/llama3_70b_fewshot_COD_results_20251027_111827.csv" 

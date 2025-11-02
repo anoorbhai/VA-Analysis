@@ -406,7 +406,6 @@ class LlamaVAProcessor:
         self.check_ollama_connection()
     
     def check_ollama_connection(self):
-        """Check if Ollama is running and model is available"""
         try:
             # Test connection to Ollama
             test_url = "http://localhost:11434/api/tags"
@@ -417,9 +416,9 @@ class LlamaVAProcessor:
                 model_names = [model.get('name', '') for model in models]
                 
                 if MODEL_NAME in model_names:
-                    logger.info(f"✓ Ollama is running and model '{MODEL_NAME}' is available")
+                    logger.info(f"Ollama is running and model '{MODEL_NAME}' is available")
                 else:
-                    logger.warning(f"⚠ Model '{MODEL_NAME}' not found. Available models: {model_names}")
+                    logger.warning(f"Model '{MODEL_NAME}' not found. Available models: {model_names}")
                     logger.warning(f"Please build the model from the Modelfile first:")
                     logger.warning(f"ollama create {MODEL_NAME} -f /home/seedatr/VA-Analysis/Prompting/Llama3_8b_Few")
             else:
@@ -455,7 +454,6 @@ class LlamaVAProcessor:
             raise
     
     def format_case_for_llm(self, row: pd.Series) -> str:
-        """Format a single case for LLM input using human-readable field names and filtering out '-' values."""
         prompt_parts = []
         individual_id = row.get('individual_id', 'Unknown')
         prompt_parts.append(f"Case ID: {individual_id}")
@@ -476,7 +474,6 @@ class LlamaVAProcessor:
                 if value.strip().lower() not in ['y', 'n']:
                     continue
                     
-            # Get human-readable field name
             field_name = FIELD_MAPPINGS.get(column_name, column_name)
             prompt_parts.append(f"{field_name}: {value}")
         
@@ -490,12 +487,6 @@ class LlamaVAProcessor:
         return "\n".join(prompt_parts)
     
     def query_llm(self, prompt: str) -> Tuple[Optional[str], Optional[str], Optional[int], float]:
-        """
-        Query the Ollama LLM and parse the response
-        
-        Returns:
-            Tuple of (cause_short, icd10_code, confidence, execution_time)
-        """
         start_time = time.time()
         
         try:
@@ -507,7 +498,6 @@ class LlamaVAProcessor:
                 "format": "json",
             }
             
-            # Make the API request
             logger.debug("Sending request to Ollama API")
             response = self.session.post(
                 OLLAMA_API_URL, 
@@ -541,12 +531,7 @@ class LlamaVAProcessor:
             return None, None, None, execution_time
     
     def parse_llm_response(self, response_text: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
-        """
-        Parse the structured LLM response to extract cause, ICD10, and confidence
         
-        Expected format:
-        { "ID": "DOBMC", "CAUSE_SHORT": "Acute Respiratory Tract Infection (Pneumonia)", "ICD10": "J18.0", "CONFIDENCE": "90" }
-        """
         try:
             data = json.loads(response_text)
             cause_short = data.get("CAUSE_SHORT")
@@ -629,7 +614,6 @@ class LlamaVAProcessor:
 
     
     def save_final_results(self, results: List[Dict], total_processing_time: float):
-        """Save final results to CSV"""
         try:
             df_results = pd.DataFrame(results)
             
@@ -672,7 +656,6 @@ class LlamaVAProcessor:
         return set(df_cod['individual_id'].dropna().astype(str))
 
 def main():
-    """Main execution function"""
     logger.info("Starting Llama3 Few-Shot VA Analysis")
     logger.info(f"Input: {INPUT_CSV_PATH}")
     logger.info(f"Output: {OUTPUT_CSV_PATH}")
