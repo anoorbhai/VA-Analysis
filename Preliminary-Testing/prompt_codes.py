@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Single Case Verbal Autopsy Llama3 Prompt Script
 

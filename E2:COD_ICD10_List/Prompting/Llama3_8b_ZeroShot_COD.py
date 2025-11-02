@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 
 import pandas as pd
 import requests
@@ -490,12 +490,7 @@ class LlamaVAProcessor:
         return "\n".join(prompt_parts)
     
     def query_llm(self, prompt: str) -> Tuple[Optional[str], Optional[str], Optional[int], float]:
-        """
-        Query the Ollama LLM and parse the response
         
-        Returns:
-            Tuple of (cause_short, icd10_code, confidence, execution_time)
-        """
         start_time = time.time()
         
         try:
@@ -541,12 +536,7 @@ class LlamaVAProcessor:
             return None, None, None, execution_time
     
     def parse_llm_response(self, response_text: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
-        """
-        Parse the structured LLM response to extract cause, ICD10, and confidence
         
-        Expected format:
-        { "ID": "DOBMC", "CAUSE_SHORT": "Acute Respiratory Tract Infection (Pneumonia)", "ICD10": "J18.0", "CONFIDENCE": "90" }
-        """
         try:
             data = json.loads(response_text)
             cause_short = data.get("CAUSE_SHORT")

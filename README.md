@@ -7,14 +7,11 @@ A comprehensive research framework for automated Cause of Death (COD) determinat
 - [Overview](#overview)
 - [Project Structure](#project-structure)
 - [Experimental Approaches](#experimental-approaches)
-- [Models](#models)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Datasets](#datasets)
 - [Evaluation](#evaluation)
 - [Results](#results)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## 🔍 Overview
 
@@ -47,31 +44,23 @@ VA-Analysis/
 ### Experimental Approaches
 
 #### E1: No Predefined List
-- **Objective**: Open-ended COD prediction without constraints
-- **Models**: Llama 3 (8B, 70B), Llama 4
-- **Strategies**: Zero-shot and Few-shot prompting
+- **Objective**: Open-ended COD prediction without constraints.
+- **Outputs**: ICD-10 Code and Description
 
 #### E2: COD with ICD-10 List
 - **Objective**: Predict COD from a predefined list with ICD-10 codes
-- **Models**: Llama 3 (8B, 70B)
-- **Strategies**: Zero-shot and Few-shot prompting
-- **Output**: ICD-10 formatted causes
+- **Outputs**: ICD-10 Code and Description
 
 #### E3: COD without ICD-10 Codes
 - **Objective**: Predict COD from a list without ICD-10 codes
-- **Models**: Llama 3 (8B, 70B)
-- **Strategies**: Zero-shot and Few-shot prompting
-- **Focus**: Clinical terminology without standardized coding
+- **Outputs**: Cause number and Description
 
 #### E4: WHO 61 Causes
 - **Objective**: Classify deaths using WHO's standardized 61-cause framework
-- **Models**: Llama 3 (8B, 70B)
-- **Strategies**: Zero-shot and Few-shot prompting
-- **Mapping**: Clinician ICD-10 codes mapped to WHO scheme codes
+- **Outputs**: Scheme Code and Description
 
 
 ### Model Deployment
-
 - **Inference**: Ollama API integration
 - **Fine-tuning**: QLoRA (Quantized Low-Rank Adaptation)
 - **Quantization**: 4-bit quantization for efficient training

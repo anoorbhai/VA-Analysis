@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 
 import pandas as pd
 import requests
@@ -541,12 +541,7 @@ class LlamaVAProcessor:
             return None, None, None, execution_time
     
     def parse_llm_response(self, response_text: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
-        """
-        Parse the structured LLM response to extract cause, ICD10, and confidence
         
-        Expected format:
-        { "ID": "DOBMC", "CAUSE_SHORT": "Acute Respiratory Tract Infection (Pneumonia)", "ICD10": "J18.0", "CONFIDENCE": "90" }
-        """
         try:
             data = json.loads(response_text)
             cause_short = data.get("CAUSE_SHORT")
